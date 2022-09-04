@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "rml_qrcode"
+version = "0.0.0"
+description = "QR code plugin for reportlab RML language"
+authors = ["Miroslav Bendík <miroslav.bendik@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^2.20.0"
+
+[project]
+name = "rml_qrcode"
+description = "QR code plugin for reportlab RML language"
+version = "0.0.0"
+authors = [
+	{ name = "Miroslav Bendík", email = "miroslav.bendik@gmail.com" }
+]
+dependencies = [
+	"qrcode",
+	"z3c.rml",
+	"six",
+]
+
+[project.optional-dependencies]
+dev = [
+	"tox",
+	"pylint",
+	"pre-commit",
+	"bump2version"
+]
+
+[build-system]
+requires = ["setuptools ~= 58.0"]
