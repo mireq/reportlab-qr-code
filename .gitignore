@@ -4,3 +4,5 @@
 .ropeproject
 build
 /sample_usage/test.pdf
+/rml_qrcode.egg-info
+/dist

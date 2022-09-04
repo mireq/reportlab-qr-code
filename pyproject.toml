@@ -1,9 +1,16 @@
 [project]
 name = "rml_qrcode"
 description = "QR code plugin for reportlab RML language"
-version = "0.0.0"
+readme = "README.rst"
+requires-python = ">=3.7"
+keywords = ["qr code", "rml", "reportlab"]
+license = {text = "MIT"}
+dynamic = ["version"]
 authors = [
 	{ name = "Miroslav Bendík", email = "miroslav.bendik@gmail.com" }
+]
+classifiers = [
+	"Programming Language :: Python :: 3",
 ]
 dependencies = [
 	"qrcode",
@@ -20,4 +27,8 @@ dev = [
 ]
 
 [build-system]
-requires = ["setuptools ~= 58.0"]
+requires = ["setuptools", "setuptools-scm", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["rml_qrcode"]
