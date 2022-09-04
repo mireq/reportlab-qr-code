@@ -23,7 +23,8 @@ dev = [
 	"tox",
 	"pylint",
 	"pre-commit",
-	"bump2version"
+	"bump2version",
+	"commitizen"
 ]
 
 [build-system]
@@ -32,3 +33,8 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
 packages = ["rml_qrcode"]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.0"
+tag_format = "$version"
