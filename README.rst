@@ -8,7 +8,9 @@ QR code plugin for reportlab RML language
 Install
 -------
 
-`pip install rml_qrcode`
+.. code:: bash
+
+	pip install rml_qrcode
 
 Usage
 -----
