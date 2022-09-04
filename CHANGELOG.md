@@ -1,3 +1,9 @@
+## 0.1.1 (2022-09-04)
+
+### Fix
+
+- Added missing setuptools_scm
+
 ## 0.1.0 (2022-09-04)
 
 ### Fix
