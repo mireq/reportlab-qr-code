@@ -1,0 +1,6 @@
+.envrc
+*~
+*.pyc
+.ropeproject
+build
+/sample_usage/test.pdf
