@@ -80,10 +80,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			# Draw code
 			stream.setFillColor(self.fg)
 			p = stream.beginPath()
-			while True:
-				segment = self.consume_segment()
-				if not segment:
-					break
+			segment = self.consume_segment()
+			while segment:
 				coords = segment[0]
 				coords = (coords[0], self.width - coords[1])
 				coords = self.bitmap_position_to_length(coords)
@@ -93,6 +91,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 					coords = self.bitmap_position_to_length(coords)
 					p.lineTo(*coords)
 				p.close()
+				segment = self.consume_segment()
 			stream.drawPath(p, stroke=0, fill=1)
 		finally:
 			stream.restoreState()
@@ -124,16 +123,14 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		Set pixel value of bitmap
 		"""
 		addr = self.addr(coords)
-		if addr is not None:
-			self.bitmap[addr] = value
+		self.bitmap[addr] = value
 
 	def bitmap_invert(self, coords):
 		"""
 		Invert value of pixel
 		"""
 		addr = self.addr(coords)
-		if addr is not None:
-			self.bitmap[addr] = 0 if self.bitmap[addr] else 1
+		self.bitmap[addr] = 0 if self.bitmap[addr] else 1
 
 	def consume_segment(self):
 		"""
@@ -193,12 +190,9 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				continue
 
 			# Trun right
-			val = self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[direction][2])
-			if val:
-				path.append(tuple(coords))
-				direction = (direction + 1) % 4
-				move()
-				continue
+			path.append(tuple(coords))
+			direction = (direction + 1) % 4
+			move()
 
 		path.append(tuple(coords))
 
