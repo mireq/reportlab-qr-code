@@ -88,11 +88,11 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				coords = (coords[0], self.width - coords[1])
 				coords = self.bitmap_position_to_length(coords)
 				p.moveTo(*coords)
-				for coords in segment[1:]:
+				for coords in segment[1:-1]:
 					coords = (coords[0], self.width - coords[1])
 					coords = self.bitmap_position_to_length(coords)
 					p.lineTo(*coords)
-			p.close()
+				p.close()
 			stream.drawPath(p, stroke=0, fill=1)
 		finally:
 			stream.restoreState()
