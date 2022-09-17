@@ -1,3 +1,13 @@
+## 0.2.0 (2022-09-17)
+
+### Fix
+
+- Close line after each segment
+
+### Feat
+
+- Render QR code using large paths
+
 ## 0.1.1 (2022-09-04)
 
 ### Fix
