@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
-from reportlab.pdfgen import canvas
-from rml_qrcode import qr
+import array
+import math
+
 import pytest
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import toLength
+
+from rml_qrcode import qr, qr_factory, reportlab_image_factory, DEFAULT_PARAMS
 
 
 def get_canvas():
@@ -48,8 +53,9 @@ def test_wrong_base64_padding():
 
 
 def test_custom_size():
-	c = get_canvas()
-	qr(c, 'size=3cm;text;Custom size')
+	qr(get_canvas(), 'size=3cm;text;Custom size') # check generator errors
+	img = qr_factory('size=3cm;text;Custom size')
+	assert img.size == toLength("3cm")
 
 
 def test_custom_colors():
@@ -58,18 +64,24 @@ def test_custom_colors():
 
 
 def test_custom_percentage_padding():
-	c = get_canvas()
-	qr(c, 'padding=20%;text;Padding 20%')
+	qr(get_canvas(), 'padding=20%;text;Padding 20%')
+	img = qr_factory('size=100,padding=20%;text;Padding 20%')
+	assert img.bitmap_position_to_length((0, 0)) == (20., 20.)
+	assert img.bitmap_position_to_length((img.width, img.width)) == (80., 80.)
 
 
 def test_custom_absolute_padding():
-	c = get_canvas()
-	qr(c, 'padding=1cm;text;Padding 1cm')
+	qr(get_canvas(), 'padding=1cm;text;Padding 1cm')
+	img = qr_factory('padding=1cm;text;Padding 1cm')
+	assert img.bitmap_position_to_length((0, 0))[0] == pytest.approx(toLength('1cm'), 0.01)
 
 
 def test_custom_pixel_padding():
-	c = get_canvas()
-	qr(c, 'padding=1;text;Padding 1 pixel')
+	qr(get_canvas(), 'padding=1;text;Padding 1 pixel')
+	img = qr_factory('padding=1;text;Padding 1 pixel')
+	padding_size = img.bitmap_position_to_length((0, 0))[0]
+	pixel_size = img.bitmap_position_to_length((1, 0))[0] - padding_size
+	assert padding_size == pytest.approx(pixel_size, 0.01)
 
 
 def test_custom_error_correction():
@@ -92,3 +104,76 @@ def test_not_number_version():
 	c = get_canvas()
 	with pytest.raises(ValueError, match=r"Version .* is not a number"):
 		qr(c, 'version=xx;text;Text')
+
+
+def draw_image(bitmap):
+	width = int(math.sqrt(len(bitmap)))
+	img = reportlab_image_factory(**DEFAULT_PARAMS)(border=0, width=width, box_size=1)
+	for address, val in enumerate(bitmap):
+		if val:
+			img.drawrect(address // width, address % width)
+	return img
+
+
+def test_simple_path():
+	# single square
+	bitmap = array.array('B', [
+		1,
+	])
+
+	img = draw_image(bitmap)
+	# Outline
+	assert img.consume_segment() == [(0, 0), (1, 0), (1, 1), (0, 1), (0, 0)]
+	assert img.consume_segment() == [] # no other segments
+
+
+def test_complex_path():
+	bitmap = array.array('B', [
+		1, 1,
+		1, 0,
+	])
+
+	img = draw_image(bitmap)
+	assert img.consume_segment() == [(0, 0), (2, 0), (2, 1), (1, 1), (1, 2), (0, 2), (0, 0)]
+	assert img.consume_segment() == [] # no other segments
+
+def test_multiple_intersections():
+	bitmap = array.array('B', [
+		1, 1, 1, 1, 1,
+		0, 0, 1, 1, 1,
+		0, 0, 1, 0, 1,
+		0, 0, 0, 0, 1,
+		0, 0, 0, 0, 1,
+	])
+	img = draw_image(bitmap)
+	assert img.consume_segment() == [(0, 0), (5, 0), (5, 5), (4, 5), (4, 2), (3, 2), (3, 3), (2, 3), (2, 1), (0, 1), (0, 0)]
+	assert img.consume_segment() == [] # no other segments
+
+
+def test_two_segments():
+	bitmap = array.array('B', [
+		1, 1, 0, 0, 0,
+		1, 1, 0, 0, 0,
+		0, 0, 0, 0, 0,
+		0, 0, 0, 1, 1,
+		0, 0, 0, 1, 1,
+	])
+	img = draw_image(bitmap)
+	assert img.consume_segment() == [(0, 0), (2, 0), (2, 2), (0, 2), (0, 0)]
+	assert img.consume_segment() == [(3, 3), (5, 3), (5, 5), (3, 5), (3, 3)]
+	assert img.consume_segment() == [] # no other segments
+
+
+def test_segment_inside():
+	bitmap = array.array('B', [
+		1, 1, 1, 1, 1,
+		1, 0, 0, 0, 1,
+		1, 0, 1, 0, 1,
+		1, 0, 0, 0, 1,
+		1, 1, 1, 1, 1,
+	])
+	img = draw_image(bitmap)
+	assert img.consume_segment() == [(0, 0), (5, 0), (5, 5), (0, 5), (0, 0)]
+	assert img.consume_segment() == [(1, 1), (4, 1), (4, 4), (1, 4), (1, 1)]
+	assert img.consume_segment() == [(2, 2), (3, 2), (3, 3), (2, 3), (2, 2)]
+	assert img.consume_segment() == [] # no other segments
