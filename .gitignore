@@ -9,3 +9,4 @@ build
 /rml_qrcode.egg-info
 /dist
 /htmlcov
+/coverage.xml
