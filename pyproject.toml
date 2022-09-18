@@ -18,6 +18,12 @@ dependencies = [
 	"six",
 ]
 
+[project.urls]
+homepage = "https://github.com/mireq/Reportlab-RML-qrcode"
+documentation = "https://github.com/mireq/Reportlab-RML-qrcode"
+repository = "https://github.com/mireq/Reportlab-RML-qrcode"
+changelog = "https://github.com/mireq/Reportlab-RML-qrcode/blob/master/CHANGELOG.md"
+
 [project.optional-dependencies]
 dev = [
 	"tox",
