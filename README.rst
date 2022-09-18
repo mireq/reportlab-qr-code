@@ -2,7 +2,7 @@
 QR code plugin for reportlab RML language
 =========================================
 
-|codecov| |downloads|
+|codecov| |version| |downloads| |license|
 
 Install
 -------
@@ -138,5 +138,11 @@ Output:
 .. |codecov| image:: https://codecov.io/gh/mireq/Reportlab-RML-qrcode/branch/master/graph/badge.svg?token=QGY5B5X0F3
 	:target: https://codecov.io/gh/mireq/Reportlab-RML-qrcode
 
+.. |version| image:: https://badge.fury.io/py/rml-qrcode.svg
+	:target: https://pypi.python.org/pypi/rml-qrcode/
+
 .. |downloads| image:: https://img.shields.io/pypi/dw/rml-qrcode.svg
+	:target: https://pypi.python.org/pypi/rml-qrcode/
+
+.. |license| image:: https://img.shields.io/pypi/l/rml-qrcode.svg
 	:target: https://pypi.python.org/pypi/rml-qrcode/
