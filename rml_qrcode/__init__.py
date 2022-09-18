@@ -48,11 +48,9 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 	padding = None
 	bg = None
 	fg = None
-	rects = []
 	bitmap = None
 
 	def __init__(self, *args, **kwargs):
-		self.rects = []
 		super().__init__(*args, **kwargs)
 		self.bitmap = array.array('B', [0] * self.width * self.width)
 		self.size = toLength(self.size)
