@@ -1,3 +1,10 @@
+## 1.0.0 (2022-09-18)
+
+### Refactor
+
+- Place shapes using transform
+- Removed unused code
+
 ## 0.2.1 (2022-09-17)
 
 ### Fix
