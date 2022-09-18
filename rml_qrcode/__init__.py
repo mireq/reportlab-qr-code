@@ -75,19 +75,21 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				stream.setFillColor(self.bg)
 				stream.rect(0, 0, self.size, self.size, fill=1, stroke=0)
 
-			# Draw code
+			# Set foreground
 			stream.setFillColor(self.fg)
+
+			# Set transform matrix
+			stream.translate(self.padding, self.padding)
+			scale = (self.size - (self.padding * 2)) / self.width
+			stream.scale(scale, scale)
+
+			# Draw code
 			p = stream.beginPath()
 			segment = self.consume_segment()
 			while segment:
-				coords = segment[0]
-				coords = (coords[0], self.width - coords[1])
-				coords = self.bitmap_position_to_length(coords)
-				p.moveTo(*coords)
+				p.moveTo(segment[0][0], self.width - segment[0][1])
 				for coords in segment[1:-1]:
-					coords = (coords[0], self.width - coords[1])
-					coords = self.bitmap_position_to_length(coords)
-					p.lineTo(*coords)
+					p.lineTo(coords[0], self.width - coords[1])
 				p.close()
 				segment = self.consume_segment()
 			stream.drawPath(p, stroke=0, fill=1)
@@ -202,9 +204,6 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 					self.bitmap_invert((col, row))
 
 		return path
-
-	def bitmap_position_to_length(self, coords):
-		return tuple(c * (self.size - 2 * self.padding) / self.width + self.padding for c in coords)
 
 
 

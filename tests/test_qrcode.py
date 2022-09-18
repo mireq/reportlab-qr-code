@@ -66,21 +66,20 @@ def test_custom_colors():
 def test_custom_percentage_padding():
 	qr(get_canvas(), 'padding=20%;text;Padding 20%')
 	img = qr_factory('size=100,padding=20%;text;Padding 20%')
-	assert img.bitmap_position_to_length((0, 0)) == (20., 20.)
-	assert img.bitmap_position_to_length((img.width, img.width)) == (80., 80.)
+	assert img.padding == 20.
 
 
 def test_custom_absolute_padding():
 	qr(get_canvas(), 'padding=1cm;text;Padding 1cm')
 	img = qr_factory('padding=1cm;text;Padding 1cm')
-	assert img.bitmap_position_to_length((0, 0))[0] == pytest.approx(toLength('1cm'), 0.01)
+	assert img.padding == pytest.approx(toLength('1cm'), 0.01)
 
 
 def test_custom_pixel_padding():
 	qr(get_canvas(), 'padding=1;text;Padding 1 pixel')
 	img = qr_factory('padding=1;text;Padding 1 pixel')
-	padding_size = img.bitmap_position_to_length((0, 0))[0]
-	pixel_size = img.bitmap_position_to_length((1, 0))[0] - padding_size
+	padding_size = img.padding
+	pixel_size = img.size / (img.width + 2.0)
 	assert padding_size == pytest.approx(pixel_size, 0.01)
 
 
