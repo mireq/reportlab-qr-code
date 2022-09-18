@@ -44,5 +44,5 @@ packages = ["rml_qrcode"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "1.0.0"
+version = "1.0.1"
 tag_format = "$version"
