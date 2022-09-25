@@ -122,8 +122,7 @@ def test_simple_path():
 
 	img = draw_image(bitmap)
 	# Outline
-	assert img.consume_segment() == [(0, 0), (1, 0), (1, 1), (0, 1), (0, 0)]
-	assert img.consume_segment() == [] # no other segments
+	assert img.get_segments() == [[(0, 0), (1, 0), (1, 1), (0, 1), (0, 0)]]
 
 
 def test_complex_path():
@@ -133,8 +132,8 @@ def test_complex_path():
 	])
 
 	img = draw_image(bitmap)
-	assert img.consume_segment() == [(0, 0), (2, 0), (2, 1), (1, 1), (1, 2), (0, 2), (0, 0)]
-	assert img.consume_segment() == [] # no other segments
+	assert img.get_segments() == [[(0, 0), (2, 0), (2, 1), (1, 1), (1, 2), (0, 2), (0, 0)]]
+
 
 def test_multiple_intersections():
 	bitmap = array.array('B', [
@@ -145,8 +144,7 @@ def test_multiple_intersections():
 		0, 0, 0, 0, 1,
 	])
 	img = draw_image(bitmap)
-	assert img.consume_segment() == [(0, 0), (5, 0), (5, 5), (4, 5), (4, 2), (3, 2), (3, 3), (2, 3), (2, 1), (0, 1), (0, 0)]
-	assert img.consume_segment() == [] # no other segments
+	assert img.get_segments() == [[(0, 0), (5, 0), (5, 5), (4, 5), (4, 2), (3, 2), (3, 3), (2, 3), (2, 1), (0, 1), (0, 0)]]
 
 
 def test_two_segments():
@@ -158,9 +156,10 @@ def test_two_segments():
 		0, 0, 0, 1, 1,
 	])
 	img = draw_image(bitmap)
-	assert img.consume_segment() == [(0, 0), (2, 0), (2, 2), (0, 2), (0, 0)]
-	assert img.consume_segment() == [(3, 3), (5, 3), (5, 5), (3, 5), (3, 3)]
-	assert img.consume_segment() == [] # no other segments
+	assert img.get_segments() == [
+		[(0, 0), (2, 0), (2, 2), (0, 2), (0, 0)],
+		[(3, 3), (5, 3), (5, 5), (3, 5), (3, 3)],
+	]
 
 
 def test_segment_inside():
@@ -172,7 +171,8 @@ def test_segment_inside():
 		1, 1, 1, 1, 1,
 	])
 	img = draw_image(bitmap)
-	assert img.consume_segment() == [(0, 0), (5, 0), (5, 5), (0, 5), (0, 0)]
-	assert img.consume_segment() == [(1, 1), (4, 1), (4, 4), (1, 4), (1, 1)]
-	assert img.consume_segment() == [(2, 2), (3, 2), (3, 3), (2, 3), (2, 2)]
-	assert img.consume_segment() == [] # no other segments
+	assert img.get_segments() == [
+		[(0, 0), (5, 0), (5, 5), (0, 5), (0, 0)],
+		[(1, 1), (4, 1), (4, 4), (1, 4), (1, 1)],
+		[(2, 2), (3, 2), (3, 3), (2, 3), (2, 2)],
+	]

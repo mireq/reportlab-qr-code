@@ -85,13 +85,11 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 
 			# Draw code
 			p = stream.beginPath()
-			segment = self.consume_segment()
-			while segment:
+			for segment in self.get_segments():
 				p.moveTo(segment[0][0], self.width - segment[0][1])
 				for coords in segment[1:-1]:
 					p.lineTo(coords[0], self.width - coords[1])
 				p.close()
-				segment = self.consume_segment()
 			stream.drawPath(p, stroke=0, fill=1)
 		finally:
 			stream.restoreState()
@@ -132,13 +130,21 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		addr = self.addr(coords)
 		self.bitmap[addr] = 0 if self.bitmap[addr] else 1
 
-	def consume_segment(self):
+	def get_segments(self):
+		"""
+		Return list of segments (vector shapes)
+		"""
+		segments = []
+		segment = self.__consume_segment()
+		while segment:
+			segments.append(segment)
+			segment = self.__consume_segment()
+		return segments
+
+	def __consume_segment(self):
 		"""
 		Returns segment of qr image as path (pairs of x, y coordinates)
 		"""
-
-		# Accumulated path
-		path = []
 
 		line_intersections = [[] for __ in range(self.width)]
 
@@ -149,8 +155,10 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				coords = self.coord(addr)
 				break
 		else:
-			return path
+			return
 
+		# Accumulated path
+		path = []
 		# Begin of line
 		path.append(tuple(coords))
 		# Default direction to right
