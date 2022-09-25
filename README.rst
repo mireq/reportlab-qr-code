@@ -43,9 +43,9 @@ Example RML code:
 	">
 	]>
 	<document filename="test.pdf" invariant="1">
-	<template pagesize="21cm,300cm">
-		<pageTemplate id="main" pagesize="21cm,300cm">
-			<frame id="main" x1="1cm" y1="1cm" width="19cm" height="270.7cm"/>
+	<template pagesize="21cm,30cm">
+		<pageTemplate id="main" pagesize="21cm,30cm">
+			<frame id="main" x1="1cm" y1="1cm" width="19cm" height="20.7cm"/>
 		</pageTemplate>
 	</template>
 	<stylesheet>
