@@ -148,13 +148,11 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 
 		line_intersections = [[] for __ in range(self.width)]
 
-		# Find coordinate of first non empty pixel
-		coords = None
-		for addr, val in enumerate(self.bitmap):
-			if val == 1:
-				coords = self.coord(addr)
-				break
-		else:
+		try:
+			# Find first pixel
+			coords = self.coord(self.bitmap.index(1))
+		except ValueError:
+			# Or no pixels left
 			return
 
 		# Accumulated path
