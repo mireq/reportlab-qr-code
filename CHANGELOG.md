@@ -1,3 +1,18 @@
+## 1.1.0 (2022-09-25)
+
+### Feat
+
+- Added python API
+
+### Fix
+
+- Argument start of array.index is availablo only from python 3.10
+- Changed example page size to standard A4
+
+### Refactor
+
+- Instad of consume segment use high level get_segments
+
 ## 1.0.1 (2022-09-18)
 
 ## 1.0.0 (2022-09-18)
