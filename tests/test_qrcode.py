@@ -6,7 +6,7 @@ import pytest
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import toLength
 
-from rml_qrcode import qr, qr_factory, reportlab_image_factory, DEFAULT_PARAMS
+from rml_qrcode import qr, qr_factory, qr_draw, reportlab_image_factory, DEFAULT_PARAMS
 
 
 def get_canvas():
@@ -176,3 +176,18 @@ def test_segment_inside():
 		[(1, 1), (4, 1), (4, 4), (1, 4), (1, 1)],
 		[(2, 2), (3, 2), (3, 3), (2, 3), (2, 2)],
 	]
+
+
+def test_python_api():
+	c = get_canvas()
+	qr_draw(c, "Text")
+
+
+def test_python_api_binary_data():
+	c = get_canvas()
+	qr_draw(c, b"Binary")
+
+
+def test_python_api_offset():
+	c = get_canvas()
+	qr_draw(c, "Text", x="1cm", y="1cm", size=5, padding=5)

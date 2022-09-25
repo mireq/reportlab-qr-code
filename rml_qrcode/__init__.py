@@ -15,7 +15,7 @@ DEFAULT_PARAMS = {
 	'version': None,
 	'error_correction': 'L',
 }
-GENERATOR_PARAMS = {'size', 'padding', 'fg', 'bg'}
+GENERATOR_PARAMS = {'size', 'padding', 'fg', 'bg', 'x', 'y'}
 QR_PARAMS = {'version', 'error_correction'}
 QR_ERROR_CORRECTIONS = {
 	'L': qrcode.ERROR_CORRECT_L,
@@ -49,19 +49,21 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 	bg = None
 	fg = None
 	bitmap = None
+	x = 0
+	y = 0
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.bitmap = array.array('B', [0] * self.width * self.width)
-		self.size = toLength(self.size)
-		if '%' in self.padding:
+		self.size = toLength(self.size) if isinstance(self.size, str) else float(self.size)
+		if isinstance(self.padding, str) and '%' in self.padding:
 			self.padding = float(self.padding[:-1]) * self.size / 100
 		else:
 			try:
 				self.padding = float(self.padding)
 				self.padding = (self.size / (self.width + self.padding * 2)) * self.padding
 			except ValueError:
-				self.padding = toLength(self.padding)
+				self.padding = toLength(self.padding) if isinstance(self.padding, str) else float(self.padding)
 
 	def drawrect(self, row, col):
 		self.bitmap_set((col, row), 1)
@@ -70,6 +72,9 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		stream.saveState()
 
 		try:
+			# Move to start
+			stream.translate(self.x, self.y)
+
 			# Draw background
 			if self.bg is not None:
 				stream.setFillColor(self.bg)
@@ -220,6 +225,27 @@ def reportlab_image_factory(**kwargs):
 	return type('ReportlabImage', (ReportlabImageBase,), kwargs)
 
 
+def clean_params(params):
+	"""
+	Validate and clean parameters
+	"""
+
+	for key, __ in params.items():
+		if key not in GENERATOR_PARAMS and key not in QR_PARAMS:
+			raise ValueError("Unknown attribute '%s'" % key)
+
+	if params['version'] is not None:
+		try:
+			params['version'] = int(params['version'])
+		except ValueError:
+			raise ValueError("Version '%s' is not a number" % params['version'])
+
+	if params['error_correction'] in QR_ERROR_CORRECTIONS:
+		params['error_correction'] = QR_ERROR_CORRECTIONS[params['error_correction']]
+	else:
+		raise ValueError("Unknown error correction '%s', expected one of %s" % (params['error_correction'], ', '.join(QR_ERROR_CORRECTIONS.keys())))
+
+
 def parse_graphic_params(params):
 	"""
 	Parses params string in form:
@@ -244,20 +270,7 @@ def parse_graphic_params(params):
 		except ValueError:
 			raise ValueError("Wrong format of parameters '%s', expected key=value pairs delimited by ',' character" % parsed_params)
 
-	for key, __ in params.items():
-		if key not in GENERATOR_PARAMS and key not in QR_PARAMS:
-			raise ValueError("Unknown attribute '%s'" % key)
-
-	if params['version'] is not None:
-		try:
-			params['version'] = int(params['version'])
-		except ValueError:
-			raise ValueError("Version '%s' is not a number" % params['version'])
-
-	if params['error_correction'] in QR_ERROR_CORRECTIONS:
-		params['error_correction'] = QR_ERROR_CORRECTIONS[params['error_correction']]
-	else:
-		raise ValueError("Unknown error correction '%s', expected one of %s" % (params['error_correction'], ', '.join(QR_ERROR_CORRECTIONS.keys())))
+	clean_params(params)
 
 	text = text.encode('utf-8')
 	if fmt == 'base64':
@@ -269,14 +282,29 @@ def parse_graphic_params(params):
 	return params, text
 
 
-def qr_factory(params):
-	params, text = parse_graphic_params(params)
+def build_qrcode(params, text):
 	factory_kwargs = {key: value for key, value in params.items() if key in GENERATOR_PARAMS}
 	qr_kwargs = {key: value for key, value in params.items() if key in QR_PARAMS}
 	return qrcode.make(text, image_factory=reportlab_image_factory(**factory_kwargs), border=0, **qr_kwargs)
 
 
-def qr(canvas, params):
+def qr_factory(params):
+	params, text = parse_graphic_params(params)
+	return build_qrcode(params, text)
+
+
+def qr_draw(canvas, text, x=0, y=0, **kwargs):
+	params = DEFAULT_PARAMS.copy()
+	params.update(**kwargs)
+	clean_params(params)
+	params['x'] = toLength(x) if isinstance(x, str) else float(x)
+	params['y'] = toLength(y) if isinstance(y, str) else float(y)
+	if isinstance(text, str):
+		text = text.encode('utf-8')
+	build_qrcode(params, text).save(canvas)
+
+
+def qr(canvas, params=None):
 	"""
 	Generate QR code using plugInGraphic or plugInFlowable
 
