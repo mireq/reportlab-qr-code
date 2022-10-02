@@ -121,7 +121,23 @@ Parameter list
 Examples
 --------
 
-RML code:
+Python examle:
+
+.. code:: python
+
+	from reportlab.pdfgen import canvas
+	from reportlab_qr_code import qr_draw
+
+	def main():
+		c = canvas.Canvas("py.pdf")
+		qr_draw(c, "Hello world", x="1cm", y="1cm", size="19cm", bg="#eeeeee")
+		c.showPage()
+		c.save()
+
+	if __name__ == "__main__":
+		main()
+
+RML document example:
 
 .. code:: xml
 
@@ -147,14 +163,16 @@ RML code:
 		3cm 3cm 2.5cm 3cm
 	">
 	]>
-	<document filename="test.pdf" invariant="1">
-	<template pagesize="21cm,29.7cm">
-		<pageTemplate id="main" pagesize="21cm,29.7cm">
-			<frame id="main" x1="1cm" y1="1cm" width="19cm" height="27.7cm"/>
+	<document filename="test.pdf" invariant="1" compression="1">
+	<template>
+		<pageTemplate id="main" pagesize="17cm,25cm">
+			<frame id="main" x1="0.5cm" y1="0.0cm" width="5cm" height="25cm"/>
+			<frame id="main" x1="6cm" y1="0.0cm" width="5cm" height="25cm"/>
+			<frame id="main" x1="11.5cm" y1="0.0cm" width="5cm" height="25cm"/>
 		</pageTemplate>
 	</template>
 	<stylesheet>
-		<paraStyle name="Normal" fontSize="12" leading="20" spaceBefore="40" />
+		<paraStyle name="Normal" fontSize="12" leading="16" spaceBefore="16" />
 	</stylesheet>
 	<story>
 		<para style="Normal">Simple text </para>
@@ -227,34 +245,33 @@ RML code:
 			<lineMode width="0.5" /><lines>&lines5;</lines>
 		</illustration>
 	
+		<condPageBreak height="7cm"/>
+	
 		<para>Version 10</para>
 		<illustration height="5cm" width="5cm" align="center">
 			<plugInGraphic module="reportlab_qr_code" function="qr">version=10;text;Version 10</plugInGraphic>
 			<lineMode width="0.5" /><lines>&lines5;</lines>
 		</illustration>
+	
+		<!--
+		<condPageBreak height="7cm"/>
+	
+		<para>Inverted</para>
+		<illustration height="5cm" width="5cm" align="center">
+			<plugInGraphic baseDir="." module="utils" function="gradient" />
+			<plugInGraphic module="reportlab_qr_code" function="qr">padding=0,fg=#ffffff,invert=1;text;Inverted</plugInGraphic>
+			<lineMode width="2" />
+			<stroke color="#ffffff" />
+			<rect x="0" y="0" width="5cm" height="5cm" fill="0" stroke="1" strokeColor="red" />
+		</illustration>
+		-->
 	</story>
 	</document>
 
+
 Output:
 
-.. image:: https://raw.github.com/wiki/mireq/reportlab-qr-code/codes.png?v2022-09-17
-
-
-Python code:
-
-.. code:: python
-
-	from reportlab.pdfgen import canvas
-	from reportlab_qr_code import qr_draw
-
-	def main():
-		c = canvas.Canvas("py.pdf")
-		qr_draw(c, "Hello world", "1cm", "1cm", size="19cm", bg="#eeeeee")
-		c.showPage()
-		c.save()
-
-	if __name__ == "__main__":
-		main()
+.. image:: https://raw.github.com/wiki/mireq/reportlab-qr-code/codes.png?v2022-10-02
 
 
 .. |codecov| image:: https://codecov.io/gh/mireq/reportlab-qr-code/branch/master/graph/badge.svg?token=QGY5B5X0F3

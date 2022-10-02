@@ -21,20 +21,22 @@
 ">
 ]>
 <document filename="test.pdf" invariant="1" compression="1">
+<!--
 <template pagesize="a4">
 	<pageTemplate id="main" pagesize="a4 portrait">
 		<frame id="main" x1="1cm" y1="1cm" width="19cm" height="27.7cm"/>
 	</pageTemplate>
 </template>
-<!--
-<template pagesize="21cm,300cm">
-	<pageTemplate id="main" pagesize="21cm,300cm">
-		<frame id="main" x1="1cm" y1="1cm" width="19cm" height="270.7cm"/>
+-->
+<template>
+	<pageTemplate id="main" pagesize="17cm,25cm">
+		<frame id="main" x1="0.5cm" y1="0.0cm" width="5cm" height="25cm"/>
+		<frame id="main" x1="6cm" y1="0.0cm" width="5cm" height="25cm"/>
+		<frame id="main" x1="11.5cm" y1="0.0cm" width="5cm" height="25cm"/>
 	</pageTemplate>
 </template>
--->
 <stylesheet>
-	<paraStyle name="Normal" fontSize="12" leading="20" spaceBefore="40" />
+	<paraStyle name="Normal" fontSize="12" leading="16" spaceBefore="16" />
 </stylesheet>
 <story>
 	<para style="Normal">Simple text </para>
@@ -107,10 +109,25 @@
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
 
+	<condPageBreak height="7cm"/>
+
 	<para>Version 10</para>
 	<illustration height="5cm" width="5cm" align="center">
 		<plugInGraphic module="reportlab_qr_code" function="qr">version=10;text;Version 10</plugInGraphic>
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
+
+	<!--
+	<condPageBreak height="7cm"/>
+
+	<para>Inverted</para>
+	<illustration height="5cm" width="5cm" align="center">
+		<plugInGraphic baseDir="." module="utils" function="gradient" />
+		<plugInGraphic module="reportlab_qr_code" function="qr">padding=0,fg=#ffffff,invert=1;text;Inverted</plugInGraphic>
+		<lineMode width="2" />
+		<stroke color="#ffffff" />
+		<rect x="0" y="0" width="5cm" height="5cm" fill="0" stroke="1" strokeColor="red" />
+	</illustration>
+	-->
 </story>
 </document>
