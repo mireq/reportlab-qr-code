@@ -262,7 +262,7 @@ RML document example:
 			<plugInGraphic module="reportlab_qr_code" function="qr">padding=0,fg=#ffffff,invert=1;text;Inverted</plugInGraphic>
 			<lineMode width="2" />
 			<stroke color="#ffffff" />
-			<rect x="0" y="0" width="5cm" height="5cm" fill="0" stroke="1" strokeColor="red" />
+			<rect x="0" y="0" width="5cm" height="5cm" fill="0" stroke="1" />
 		</illustration>
 		-->
 	</story>
