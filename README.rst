@@ -16,7 +16,7 @@ Why is this better than x?
 
 **Including image to PDF**
 
-Imaber are blurry
+Images are blurry.
 
 **reportlab-qrcode**
 
@@ -35,7 +35,9 @@ gaps in every situation.
 Smaller output
 
 Hello world using reportlab-qrcode produces vector image with size 9 239 bytes.
-My code with better output produces only 1 984 (78.5 reduction in size).
+My code with produces only 1 984 bytes (78.5 reduction in size).
+
+Customizable colors
 
 Usage
 -----
