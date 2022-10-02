@@ -14,6 +14,8 @@ DEFAULT_PARAMS = {
 	'bg': None,
 	'version': None,
 	'error_correction': 'L',
+	'x': 0,
+	'y': 0,
 }
 GENERATOR_PARAMS = {'size', 'padding', 'fg', 'bg', 'x', 'y'}
 QR_PARAMS = {'version', 'error_correction'}
@@ -64,6 +66,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				self.padding = (self.size / (self.width + self.padding * 2)) * self.padding
 			except ValueError:
 				self.padding = toLength(self.padding) if isinstance(self.padding, str) else float(self.padding)
+		self.x = toLength(self.x) if isinstance(self.x, str) else float(self.x)
+		self.y = toLength(self.y) if isinstance(self.y, str) else float(self.y)
 
 	def drawrect(self, row, col):
 		self.bitmap_set((col, row), 1)
@@ -293,12 +297,10 @@ def qr_factory(params):
 	return build_qrcode(params, text)
 
 
-def qr_draw(canvas, text, x=0, y=0, **kwargs):
+def qr_draw(canvas, text, **kwargs):
 	params = DEFAULT_PARAMS.copy()
 	params.update(**kwargs)
 	clean_params(params)
-	params['x'] = toLength(x) if isinstance(x, str) else float(x)
-	params['y'] = toLength(y) if isinstance(y, str) else float(y)
 	if isinstance(text, str):
 		text = text.encode('utf-8')
 	build_qrcode(params, text).save(canvas)

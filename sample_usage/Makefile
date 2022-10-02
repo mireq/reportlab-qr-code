@@ -1,11 +1,11 @@
-.PHONY: all
+.PHONY: all test_pdf py_pdf
 
 
-all: test.pdf py.pdf
+all: test_pdf py_pdf
 
 
-test.pdf: test.rml ../reportlab_qr_code/__init__.py
+test_pdf: test.rml ../reportlab_qr_code/__init__.py
 	python3 -m z3c.rml.rml2pdf test.rml
 
-py.pdf: test.py ../reportlab_qr_code/__init__.py
+py_pdf: test.py ../reportlab_qr_code/__init__.py
 	python test.py

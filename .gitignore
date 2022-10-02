@@ -5,7 +5,7 @@
 .coverage
 .tox
 build
-/sample_usage/test.pdf
+/sample_usage/*.pdf
 /reportlab_qr_code_generator.egg-info
 /dist
 /htmlcov
