@@ -16,8 +16,10 @@ DEFAULT_PARAMS = {
 	'error_correction': 'L',
 	'x': 0,
 	'y': 0,
+	'invert': False
 }
-GENERATOR_PARAMS = {'size', 'padding', 'fg', 'bg', 'x', 'y'}
+FALSE_VALUES = {'off', 'false', 'False', '0', False, 0, None}
+GENERATOR_PARAMS = {'size', 'padding', 'fg', 'bg', 'x', 'y', 'invert'}
 QR_PARAMS = {'version', 'error_correction'}
 QR_ERROR_CORRECTIONS = {
 	'L': qrcode.ERROR_CORRECT_L,
@@ -53,10 +55,12 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 	bitmap = None
 	x = 0
 	y = 0
+	invert = False
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.bitmap = array.array('B', [0] * self.width * self.width)
+		self.invert = self.invert not in FALSE_VALUES
+		self.bitmap = array.array('B', [1 if self.invert else 0] * self.width * self.width)
 		self.size = toLength(self.size) if isinstance(self.size, str) else float(self.size)
 		if isinstance(self.padding, str) and '%' in self.padding:
 			self.padding = float(self.padding[:-1]) * self.size / 100
@@ -70,7 +74,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		self.y = toLength(self.y) if isinstance(self.y, str) else float(self.y)
 
 	def drawrect(self, row, col):
-		self.bitmap_set((col, row), 1)
+		self.bitmap_set((col, row), 0 if self.invert else 1)
 
 	def save(self, stream, kind=None):
 		stream.saveState()

@@ -191,3 +191,15 @@ def test_python_api_binary_data():
 def test_python_api_offset():
 	c = get_canvas()
 	qr_draw(c, "Text", x="1cm", y="1cm", size=5, padding=5)
+
+
+def test_inverted():
+	img_default = qr_factory(';text;Text')
+	img_standard = qr_factory('invert=0;text;Text')
+	img_inverted = qr_factory('invert=1;text;Text')
+
+	# Default is not inverted
+	assert img_default.bitmap == img_standard.bitmap
+
+	for a, b in zip(img_standard.bitmap, img_inverted.bitmap):
+		assert a == 1 - b # check if is inverted
