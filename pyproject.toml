@@ -1,6 +1,6 @@
 [project]
-name = "reportlab_qr_code"
-description = "QR code plugin for reportlab RML language"
+name = "reportlab_qr_code_generator"
+description = "QR code plugin for reportlab and RML language"
 readme = "README.rst"
 requires-python = ">=3.7"
 keywords = ["qr code", "rml", "reportlab"]

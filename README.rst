@@ -9,7 +9,7 @@ Install
 
 .. code:: bash
 
-	pip install reportlab_qr_code
+	pip install reportlab_qr_code_generator
 
 Why is this better than x?
 --------------------------

@@ -6,7 +6,7 @@
 .tox
 build
 /sample_usage/test.pdf
-/reportlab_qr_code.egg-info
+/reportlab_qr_code_generator.egg-info
 /dist
 /htmlcov
 /coverage.xml
