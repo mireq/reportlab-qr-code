@@ -39,7 +39,7 @@
 <story>
 	<para style="Normal">Simple text </para>
 	<illustration height="5cm" width="5cm" align="center">
-		<plugInGraphic module="rml_qrcode" function="qr">;text;Simple text</plugInGraphic>
+		<plugInGraphic module="reportlab_qr_code" function="qr">;text;Simple text</plugInGraphic>
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
 
@@ -47,7 +47,7 @@
 
 	<para>Custom size</para>
 	<illustration height="3cm" width="3cm" align="center">
-		<plugInGraphic module="rml_qrcode" function="qr">size=3cm;text;Custom size</plugInGraphic>
+		<plugInGraphic module="reportlab_qr_code" function="qr">size=3cm;text;Custom size</plugInGraphic>
 		<lineMode width="0.5" /><lines>&lines3;</lines>
 	</illustration>
 
@@ -55,7 +55,7 @@
 
 	<para>Base 64 encoded</para>
 	<illustration height="5cm" width="5cm" align="center">
-		<plugInGraphic module="rml_qrcode" function="qr">;base64;QmFzZSA2NCBlbmNvZGVk</plugInGraphic>
+		<plugInGraphic module="reportlab_qr_code" function="qr">;base64;QmFzZSA2NCBlbmNvZGVk</plugInGraphic>
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
 
@@ -63,7 +63,7 @@
 
 	<para>Custom colors</para>
 	<illustration height="5cm" width="5cm" align="center">
-		<plugInGraphic module="rml_qrcode" function="qr">bg=#eeeeee,fg=#a00000;text;Custom colors</plugInGraphic>
+		<plugInGraphic module="reportlab_qr_code" function="qr">bg=#eeeeee,fg=#a00000;text;Custom colors</plugInGraphic>
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
 
@@ -71,7 +71,7 @@
 
 	<para>Padding 20%</para>
 	<illustration height="5cm" width="5cm" align="center">
-		<plugInGraphic module="rml_qrcode" function="qr">padding=20%;text;Padding 20%</plugInGraphic>
+		<plugInGraphic module="reportlab_qr_code" function="qr">padding=20%;text;Padding 20%</plugInGraphic>
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
 
@@ -79,7 +79,7 @@
 
 	<para>Padding 1cm</para>
 	<illustration height="5cm" width="5cm" align="center">
-		<plugInGraphic module="rml_qrcode" function="qr">padding=1cm;text;Padding 1cm</plugInGraphic>
+		<plugInGraphic module="reportlab_qr_code" function="qr">padding=1cm;text;Padding 1cm</plugInGraphic>
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
 
@@ -87,7 +87,7 @@
 
 	<para>Padding 1 pixel</para>
 	<illustration height="5cm" width="5cm" align="center">
-		<plugInGraphic module="rml_qrcode" function="qr">padding=1;text;Padding 1 pixel</plugInGraphic>
+		<plugInGraphic module="reportlab_qr_code" function="qr">padding=1;text;Padding 1 pixel</plugInGraphic>
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
 
@@ -95,7 +95,7 @@
 
 	<para>Error correction M</para>
 	<illustration height="5cm" width="5cm" align="center">
-		<plugInGraphic module="rml_qrcode" function="qr">error_correction=M;text;Error correction</plugInGraphic>
+		<plugInGraphic module="reportlab_qr_code" function="qr">error_correction=M;text;Error correction</plugInGraphic>
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
 
@@ -103,13 +103,13 @@
 
 	<para>Error correction L</para>
 	<illustration height="5cm" width="5cm" align="center">
-		<plugInGraphic module="rml_qrcode" function="qr">error_correction=L;text;Error correction</plugInGraphic>
+		<plugInGraphic module="reportlab_qr_code" function="qr">error_correction=L;text;Error correction</plugInGraphic>
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
 
 	<para>Version 10</para>
 	<illustration height="5cm" width="5cm" align="center">
-		<plugInGraphic module="rml_qrcode" function="qr">version=10;text;Version 10</plugInGraphic>
+		<plugInGraphic module="reportlab_qr_code" function="qr">version=10;text;Version 10</plugInGraphic>
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
 </story>

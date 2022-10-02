@@ -1,5 +1,5 @@
 [project]
-name = "rml_qrcode"
+name = "reportlab_qr_code"
 description = "QR code plugin for reportlab RML language"
 readme = "README.rst"
 requires-python = ">=3.7"
@@ -14,15 +14,14 @@ classifiers = [
 ]
 dependencies = [
 	"qrcode",
-	"z3c.rml",
 	"six",
 ]
 
 [project.urls]
-homepage = "https://github.com/mireq/Reportlab-RML-qrcode"
-documentation = "https://github.com/mireq/Reportlab-RML-qrcode"
-repository = "https://github.com/mireq/Reportlab-RML-qrcode"
-changelog = "https://github.com/mireq/Reportlab-RML-qrcode/blob/master/CHANGELOG.md"
+homepage = "https://github.com/mireq/reportlab-qr-code"
+documentation = "https://github.com/mireq/reportlab-qr-code"
+repository = "https://github.com/mireq/reportlab-qr-code"
+changelog = "https://github.com/mireq/reportlab-qr-code/blob/master/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
@@ -38,7 +37,7 @@ requires = ["setuptools", "setuptools-scm", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["rml_qrcode"]
+packages = ["reportlab_qr_code"]
 
 [tool.setuptools_scm]
 

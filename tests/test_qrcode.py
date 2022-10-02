@@ -6,7 +6,7 @@ import pytest
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import toLength
 
-from rml_qrcode import qr, qr_factory, qr_draw, reportlab_image_factory, DEFAULT_PARAMS
+from reportlab_qr_code import qr, qr_factory, qr_draw, reportlab_image_factory, DEFAULT_PARAMS
 
 
 def get_canvas():

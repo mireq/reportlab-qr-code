@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from reportlab.pdfgen import canvas
-from rml_qrcode import qr_draw
+from reportlab_qr_code import qr_draw
 
 
 def main():
