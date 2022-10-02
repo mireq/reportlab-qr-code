@@ -11,6 +11,32 @@ Install
 
 	pip install rml_qrcode
 
+Why is this better than x?
+--------------------------
+
+**Including image to PDF**
+
+Imaber are blurry
+
+**reportlab-qrcode**
+
+Reportlab qrcode is vector QR code generator for reportlab. My project is better
+in some aspects:
+
+Images can be directly added to Reportlab RML code.
+
+Better rendering:
+
+.. image:: https://raw.github.com/wiki/mireq/Reportlab-RML-qrcode/rendering.png?v2022-10-02
+
+This library merges adjacent blocks to single area whihch produces image without
+gaps in every situation.
+
+Smaller output
+
+Hello world using reportlab-qrcode produces vector image with size 9 239 bytes.
+My code with better output produces only 1 984 (78.5 reduction in size).
+
 Usage
 -----
 
