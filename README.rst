@@ -260,11 +260,11 @@ Python code:
 .. |codecov| image:: https://codecov.io/gh/mireq/reportlab-qr-code/branch/master/graph/badge.svg?token=QGY5B5X0F3
 	:target: https://codecov.io/gh/mireq/reportlab-qr-code
 
-.. |version| image:: https://badge.fury.io/py/reportlab-qr-code.svg
-	:target: https://pypi.python.org/pypi/reportlab-qr-code/
+.. |version| image:: https://badge.fury.io/py/reportlab-qr-code-generator.svg
+	:target: https://pypi.python.org/pypi/reportlab-qr-code-generator/
 
-.. |downloads| image:: https://img.shields.io/pypi/dw/reportlab-qr-code.svg
-	:target: https://pypi.python.org/pypi/reportlab-qr-code/
+.. |downloads| image:: https://img.shields.io/pypi/dw/reportlab-qr-code-generator.svg
+	:target: https://pypi.python.org/pypi/reportlab-qr-code-generator/
 
-.. |license| image:: https://img.shields.io/pypi/l/reportlab-qr-code.svg
-	:target: https://pypi.python.org/pypi/reportlab-qr-code/
+.. |license| image:: https://img.shields.io/pypi/l/reportlab-qr-code-generator.svg
+	:target: https://pypi.python.org/pypi/reportlab-qr-code-generator/
