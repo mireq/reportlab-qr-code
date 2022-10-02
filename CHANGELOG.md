@@ -1,3 +1,10 @@
+## 1.3.0 (2022-10-02)
+
+### Feat
+
+- Added invert color support
+- Allow change x/y coordinates using parameters in RML
+
 ## 1.2.2 (2022-10-02)
 
 ### Fix
