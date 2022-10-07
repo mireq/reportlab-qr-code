@@ -83,10 +83,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			# Move to start
 			stream.translate(self.x, self.y)
 
-			# Draw background
-			if self.bg is not None:
-				stream.setFillColor(self.bg)
-				stream.rect(0, 0, self.size, self.size, fill=1, stroke=0)
+			self.draw_background(stream)
 
 			# Set foreground
 			stream.setFillColor(self.fg)
@@ -96,16 +93,75 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			scale = (self.size - (self.padding * 2)) / self.width
 			stream.scale(scale, scale)
 
-			# Draw code
-			p = stream.beginPath()
-			for segment in self.get_segments():
-				p.moveTo(segment[0][0], self.width - segment[0][1])
-				for coords in segment[1:-1]:
-					p.lineTo(coords[0], self.width - coords[1])
-				p.close()
-			stream.drawPath(p, stroke=0, fill=1)
+			#self.draw_code(stream)
+			self.draw_rounded_code(stream)
 		finally:
 			stream.restoreState()
+
+	def draw_background(self, stream):
+		"""
+		Draw rectangle on background if is not transparent
+		"""
+		if self.bg is not None:
+			stream.setFillColor(self.bg)
+			stream.rect(0, 0, self.size, self.size, fill=1, stroke=0)
+
+	def draw_code(self, stream):
+		"""
+		Draw QR code
+		"""
+		p = stream.beginPath()
+		for segment in self.get_segments():
+			p.moveTo(segment[0][0], self.width - segment[0][1])
+			for coords in segment[1:-1]:
+				p.lineTo(coords[0], self.width - coords[1])
+			p.close()
+		stream.drawPath(p, stroke=0, fill=1)
+
+	def draw_rounded_code(self, stream):
+		"""
+		Draw QR code using rounded paths
+		"""
+		radius = 0.5
+		p = stream.beginPath()
+		#print("===============")
+		for segment in self.get_segments():
+			p.moveTo(segment[0][0] + radius, self.width - segment[0][1])
+			for i in range(1, len(segment) - 1):
+				coords = segment[i]
+				prev_coords = segment[i - 1]
+				next_coords = segment[(i + 1) % len(segment)]
+				def direction(src, dst):
+					out = [0, 0]
+					if src[0] > dst[0]:
+						out[0] = 1
+					elif src[0] < dst[0]:
+						out[0] = -1
+					if src[1] > dst[1]:
+						out[1] = -1
+					elif src[1] < dst[1]:
+						out[1] = 1
+					return out
+				prev_dir = direction(prev_coords, coords)
+				next_dir = direction(next_coords, coords)
+				prev_dir = [radius * c for c in prev_dir]
+				next_dir = [radius * c for c in next_dir]
+				p.lineTo(coords[0] + prev_dir[0], self.width - coords[1] + prev_dir[1])
+				p.curveTo(
+					coords[0] + prev_dir[0], self.width - coords[1] + prev_dir[1],
+					coords[0], self.width - coords[1],
+					coords[0] + next_dir[0], self.width - coords[1] + next_dir[1],
+				)
+
+			coords = segment[0]
+			p.lineTo(coords[0], self.width - coords[1] - radius)
+			p.curveTo(
+				coords[0], self.width - coords[1] - radius,
+				coords[0], self.width - coords[1],
+				coords[0] + radius, self.width - coords[1],
+			)
+			p.close()
+		stream.drawPath(p, stroke=0, fill=1)
 
 	def addr(self, coords):
 		"""
