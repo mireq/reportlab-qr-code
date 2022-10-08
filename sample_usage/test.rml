@@ -117,7 +117,6 @@
 		<lineMode width="0.5" /><lines>&lines5;</lines>
 	</illustration>
 
-	<!--
 	<condPageBreak height="7cm"/>
 
 	<para>Inverted</para>
@@ -128,6 +127,29 @@
 		<stroke color="#ffffff" />
 		<rect x="0" y="0" width="5cm" height="5cm" fill="0" stroke="1" />
 	</illustration>
-	-->
+
+	<condPageBreak height="7cm"/>
+
+	<para style="Normal">Small radius</para>
+	<illustration height="5cm" width="5cm" align="center">
+		<plugInGraphic module="reportlab_qr_code" function="qr">radius=0.5;text;Small radius</plugInGraphic>
+		<lineMode width="0.5" /><lines>&lines5;</lines>
+	</illustration>
+
+	<condPageBreak height="7cm"/>
+
+	<para style="Normal">Round with better path</para>
+	<illustration height="5cm" width="5cm" align="center">
+		<plugInGraphic module="reportlab_qr_code" function="qr">radius=0.5,enhanced_path=1;text;ROUND WITH BETTER PATH</plugInGraphic>
+		<lineMode width="0.5" /><lines>&lines5;</lines>
+	</illustration>
+
+	<condPageBreak height="7cm"/>
+
+	<para style="Normal">Large radius</para>
+	<illustration height="5cm" width="5cm" align="center">
+		<plugInGraphic module="reportlab_qr_code" function="qr">radius=3.5;text;Large radius</plugInGraphic>
+		<lineMode width="0.5" /><lines>&lines5;</lines>
+	</illustration>
 </story>
 </document>

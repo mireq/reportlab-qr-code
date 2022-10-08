@@ -15,7 +15,6 @@ DEFAULT_PARAMS = {
 	'error_correction': 'L',
 }
 FALSE_VALUES = {'off', 'false', 'False', '0', False, 0, None}
-GENERATOR_PARAMS = {'size', 'padding', 'fg', 'bg', 'x', 'y', 'invert'}
 QR_PARAMS = {'version', 'error_correction'}
 QR_ERROR_CORRECTIONS = {
 	'L': qrcode.ERROR_CORRECT_L,
@@ -51,6 +50,10 @@ class Transforms:
 	def to_bool(val):
 		return val not in FALSE_VALUES
 
+	@staticmethod
+	def to_float(val):
+		return float(val)
+
 
 class ReportlabImageBase(qrcode.image.base.BaseImage):
 	PARAMS = {
@@ -61,9 +64,11 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		'x': Transforms.to_length,
 		'y': Transforms.to_length,
 		'invert': Transforms.to_bool,
+		'radius': Transforms.to_float,
+		'enhanced_path': Transforms.to_bool,
 	}
 
-	size = '5cm'
+	size = toLength('5cm')
 	padding = '2.5'
 	bg = None
 	fg = '#000000'
@@ -71,6 +76,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 	x = 0
 	y = 0
 	invert = False
+	enhanced_path = None
+	radius = 0
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -83,6 +90,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				self.padding = (self.size / (self.width + self.padding * 2)) * self.padding
 			except ValueError:
 				self.padding = toLength(self.padding) if isinstance(self.padding, str) else float(self.padding)
+		if self.enhanced_path is None:
+			self.enhanced_path = self.radius == 0
 
 	def drawrect(self, row, col):
 		self.bitmap_set((col, row), 0 if self.invert else 1)
@@ -105,8 +114,10 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			scale = (self.size - (self.padding * 2)) / self.width
 			stream.scale(scale, scale)
 
-			#self.draw_code(stream)
-			self.draw_rounded_code(stream)
+			if self.radius == 0:
+				self.draw_code(stream)
+			else:
+				self.draw_rounded_code(stream)
 		finally:
 			stream.restoreState()
 
@@ -134,7 +145,6 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		"""
 		Draw QR code using rounded paths
 		"""
-		radius = 0.5
 		p = stream.beginPath()
 		for segment in self.get_segments():
 			segment = segment[:-1]
@@ -142,8 +152,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				coords = segment[i]
 				prev_coords = segment[i - 1]
 				next_coords = segment[(i + 1) % len(segment)]
-				prev_dir = self.__calc_round_direction(prev_coords, coords, radius)
-				next_dir = self.__calc_round_direction(next_coords, coords, radius)
+				prev_dir = self.__calc_round_direction(prev_coords, coords, self.radius)
+				next_dir = self.__calc_round_direction(next_coords, coords, self.radius)
 				if i == 0:
 					p.moveTo(coords[0] + prev_dir[0], coords[1] + prev_dir[1])
 				else:
@@ -249,11 +259,12 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			# Trun left
 			val = self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[(direction - max(0, clockwiese)) % 4])
 			if val:
-				# Detect intersection pattern and change direction
-				if not self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[(direction + min(0, clockwiese)) % 4]):
-					move()
-					clockwiese = -clockwiese
-					continue;
+				if self.enhanced_path:
+					# Detect intersection pattern and change direction
+					if not self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[(direction + min(0, clockwiese)) % 4]):
+						move()
+						clockwiese = -clockwiese
+						continue;
 				path.append(tuple(coords))
 				direction = (direction - clockwiese) % 4
 				move()
@@ -290,10 +301,6 @@ def reportlab_image_factory(base=ReportlabImageBase, **kwargs):
 	Returns ReportlabImage class for qrcode image_factory
 	"""
 	params = {}
-	# Set default parameters
-	for key, transform in base.PARAMS.items():
-		default = getattr(base, key)
-		params[key] = default if transform is None else transform(default)
 	# Chceck each parameter
 	for key, value in kwargs.items():
 		# If is unknown, raise exception
