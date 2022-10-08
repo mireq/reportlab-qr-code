@@ -336,12 +336,9 @@ def parse_graphic_params(params):
 def build_qrcode(params, text):
 	factory_kwargs = {key: value for key, value in params.items() if key in GENERATOR_PARAMS}
 	qr_kwargs = {key: value for key, value in params.items() if key in QR_PARAMS}
-	return qrcode.make(text, image_factory=reportlab_image_factory(**factory_kwargs), border=0, **qr_kwargs)
-
-
-def qr_factory(params):
-	params, text = parse_graphic_params(params)
-	return build_qrcode(params, text)
+	qr = qrcode.QRCode(image_factory=reportlab_image_factory(**factory_kwargs), border=0, **qr_kwargs)
+	qr.add_data(text)
+	return qr.make_image()
 
 
 def qr_draw(canvas, text, **kwargs):
