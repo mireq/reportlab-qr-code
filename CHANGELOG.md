@@ -1,3 +1,33 @@
+## 1.4.0 (2022-10-08)
+
+### Fix
+
+- Fill color is not needed in mask mode
+- Fixed bezier curves
+
+### Feat
+
+- Added mask support
+- Enhanced path algorithm
+
+### Refactor
+
+- Simplefield turn checks
+- More flexible way to parse parameters
+- Don't use shortcut to build qr instance
+- Using constant instead of hardcoded value
+
+## 1.3.1 (2022-10-07)
+
+### Fix
+
+- Set fill mode for path
+- Removed useless attribute
+
+### Feat
+
+- Testing round corners
+
 ## 1.3.0 (2022-10-02)
 
 ### Feat
