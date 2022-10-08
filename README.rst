@@ -34,8 +34,9 @@ gaps in every situation.
 
 Smaller output
 
-Hello world using reportlab-qrcode produces vector image with size 9 239 bytes.
-My code with produces only 1 984 bytes (78.5 reduction in size).
+First lorem ipsum paragraph products using reportlab-qrcode vector image with
+size 181 418 bytes.  My code with produces only 34 131 bytes (81% reduction in
+size).
 
 Customizable colors
 
@@ -141,6 +142,7 @@ RML document example:
 
 .. code:: xml
 
+
 	<!DOCTYPE document SYSTEM "rml_1_0.dtd" [
 	<!ENTITY lines5 "
 		0cm 0cm 0cm 0.5cm
@@ -164,17 +166,25 @@ RML document example:
 	">
 	]>
 	<document filename="test.pdf" invariant="1" compression="1">
+	<!--
+	<template pagesize="a4">
+		<pageTemplate id="main" pagesize="a4 portrait">
+			<frame id="main" x1="1cm" y1="1cm" width="19cm" height="27.7cm"/>
+		</pageTemplate>
+	</template>
+	-->
 	<template>
-		<pageTemplate id="main" pagesize="17cm,25cm">
-			<frame id="main" x1="0.5cm" y1="0.0cm" width="5cm" height="25cm"/>
-			<frame id="main" x1="6cm" y1="0.0cm" width="5cm" height="25cm"/>
-			<frame id="main" x1="11.5cm" y1="0.0cm" width="5cm" height="25cm"/>
+		<pageTemplate id="main" pagesize="17cm,32cm">
+			<frame id="main" x1="0.5cm" y1="0.0cm" width="5cm" height="32cm"/>
+			<frame id="main" x1="6cm" y1="0.0cm" width="5cm" height="32cm"/>
+			<frame id="main" x1="11.5cm" y1="0.0cm" width="5cm" height="32cm"/>
 		</pageTemplate>
 	</template>
 	<stylesheet>
 		<paraStyle name="Normal" fontSize="12" leading="16" spaceBefore="16" />
 	</stylesheet>
 	<story>
+	
 		<para style="Normal">Simple text </para>
 		<illustration height="5cm" width="5cm" align="center">
 			<plugInGraphic module="reportlab_qr_code" function="qr">;text;Simple text</plugInGraphic>
@@ -253,6 +263,30 @@ RML document example:
 			<lineMode width="0.5" /><lines>&lines5;</lines>
 		</illustration>
 	
+		<condPageBreak height="7cm"/>
+	
+		<para style="Normal">Small radius</para>
+		<illustration height="5cm" width="5cm" align="center">
+			<plugInGraphic module="reportlab_qr_code" function="qr">radius=0.5;text;Small radius</plugInGraphic>
+			<lineMode width="0.5" /><lines>&lines5;</lines>
+		</illustration>
+	
+		<condPageBreak height="7cm"/>
+	
+		<para style="Normal">Round with better path</para>
+		<illustration height="5cm" width="5cm" align="center">
+			<plugInGraphic module="reportlab_qr_code" function="qr">radius=0.5,enhanced_path=1;text;ROUND WITH BETTER PATH</plugInGraphic>
+			<lineMode width="0.5" /><lines>&lines5;</lines>
+		</illustration>
+	
+		<condPageBreak height="7cm"/>
+	
+		<para style="Normal">Large radius</para>
+		<illustration height="5cm" width="5cm" align="center">
+			<plugInGraphic module="reportlab_qr_code" function="qr">radius=3.5;text;Large radius</plugInGraphic>
+			<lineMode width="0.5" /><lines>&lines5;</lines>
+		</illustration>
+	
 		<!--
 		<condPageBreak height="7cm"/>
 	
@@ -264,14 +298,23 @@ RML document example:
 			<stroke color="#ffffff" />
 			<rect x="0" y="0" width="5cm" height="5cm" fill="0" stroke="1" />
 		</illustration>
+	
+		<condPageBreak height="7cm"/>
+	
+		<para>Mask</para>
+		<illustration height="5cm" width="5cm" align="center">
+			<lineMode width="0.5" /><lines>&lines5;</lines>
+			<plugInGraphic module="reportlab_qr_code" function="qr">mask=1,radius=0.5,enhanced_path=1;text;Mask</plugInGraphic>
+			<plugInGraphic baseDir="." module="utils" function="gradient" />
+		</illustration>
 		-->
+	
 	</story>
 	</document>
 
-
 Output:
 
-.. image:: https://raw.github.com/wiki/mireq/reportlab-qr-code/codes.png?v2022-10-02
+.. image:: https://raw.github.com/wiki/mireq/reportlab-qr-code/codes.png?v2022-10-08
 
 
 .. |codecov| image:: https://codecov.io/gh/mireq/reportlab-qr-code/branch/master/graph/badge.svg?token=QGY5B5X0F3
