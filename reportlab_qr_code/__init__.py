@@ -3,6 +3,7 @@ import array
 import operator
 from base64 import b64decode
 from reportlab.pdfgen.canvas import FILL_EVEN_ODD
+import sys
 
 import qrcode
 from reportlab.lib.units import toLength
@@ -104,8 +105,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			scale = (self.size - (self.padding * 2)) / self.width
 			stream.scale(scale, scale)
 
-			self.draw_code(stream)
-			#self.draw_rounded_code(stream)
+			#self.draw_code(stream)
+			self.draw_rounded_code(stream)
 		finally:
 			stream.restoreState()
 
@@ -133,7 +134,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		"""
 		Draw QR code using rounded paths
 		"""
-		radius = 3.5
+		radius = 0.5
 		p = stream.beginPath()
 		for segment in self.get_segments():
 			segment = segment[:-1]
@@ -246,15 +247,20 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		# From shape begin to end
 		while coords != path[0]:
 			# Trun left
-			val = self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[(direction - 1) % 4])
+			val = self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[(direction - max(0, clockwiese)) % 4])
 			if val:
+				# Detect intersection pattern and change direction
+				if not self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[(direction + min(0, clockwiese)) % 4]):
+					move()
+					clockwiese = -clockwiese
+					continue;
 				path.append(tuple(coords))
 				direction = (direction - clockwiese) % 4
 				move()
 				continue
 
 			# Straight
-			val = self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[direction])
+			val = self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[(direction + min(0, clockwiese)) % 4])
 			if val:
 				move()
 				continue
@@ -277,7 +283,6 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 
 	def __calc_round_direction(self, src, dst, radius):
 		return [min(max((s - d) * 0.5, -radius), radius) for s, d in zip(src, dst)]
-
 
 
 def reportlab_image_factory(base=ReportlabImageBase, **kwargs):
