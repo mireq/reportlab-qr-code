@@ -138,9 +138,10 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 					p.moveTo(coords[0] + prev_dir[0], coords[1] + prev_dir[1])
 				else:
 					p.lineTo(coords[0] + prev_dir[0], coords[1] + prev_dir[1])
+				c = 0.45 # 1 - (4/3)*tan(pi/8)
 				p.curveTo(
-					coords[0] + prev_dir[0] * 0.45, coords[1] + prev_dir[1] * 0.45,
-					coords[0] + next_dir[0] * 0.45, coords[1] + next_dir[1] * 0.45,
+					coords[0] + prev_dir[0] * c, coords[1] + prev_dir[1] * c,
+					coords[0] + next_dir[0] * c, coords[1] + next_dir[1] * c,
 					coords[0] + next_dir[0], coords[1] + next_dir[1],
 				)
 			p.close()
