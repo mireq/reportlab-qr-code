@@ -41,6 +41,12 @@ def test_unknown_format():
 		qr(c, ';wrong;Text')
 
 
+def test_wrong_type():
+	c = get_canvas()
+	with pytest.raises(ValueError, match=r"Wrong value .*"):
+		qr(c, 'radius=z;text;Text')
+
+
 def test_base64():
 	c = get_canvas()
 	qr(c, ';base64;QmFzZSA2NCBlbmNvZGVk')
@@ -81,6 +87,31 @@ def test_custom_pixel_padding():
 	padding_size = img.padding
 	pixel_size = img.size / (img.width + 2.0)
 	assert padding_size == pytest.approx(pixel_size, 0.01)
+
+
+def test_radius():
+	qr(get_canvas(), 'radius=0.5;text;Radius')
+	img = build_qrcode(*parse_params_string('radius=0.5;text;Radius'))
+	assert img.radius == 0.5
+	assert img.enhanced_path == False
+
+
+def test_default_enhanced_path():
+	img = build_qrcode(*parse_params_string(';text;Default enhanced'))
+	assert img.enhanced_path == True
+
+
+def test_override_enhanced():
+	qr(get_canvas(), 'radius=0.5,enhanced_path=1;text;Radius')
+	img = build_qrcode(*parse_params_string('radius=0.5,enhanced_path=1;text;Radius'))
+	assert img.radius == 0.5
+	assert img.enhanced_path == True
+
+
+def test_mask():
+	qr(get_canvas(), 'mask=1;text;Mask')
+	img = build_qrcode(*parse_params_string('mask=1;text;Mask'))
+	assert img.mask == True
 
 
 def test_custom_error_correction():
