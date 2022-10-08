@@ -2,6 +2,7 @@
 import array
 import operator
 from base64 import b64decode
+from reportlab.pdfgen.canvas import FILL_EVEN_ODD
 
 import qrcode
 from reportlab.lib.units import toLength
@@ -117,7 +118,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			for coords in segment[1:-1]:
 				p.lineTo(coords[0], coords[1])
 			p.close()
-		stream.drawPath(p, stroke=0, fill=1)
+		stream.drawPath(p, stroke=0, fill=1, fillMode=FILL_EVEN_ODD)
 
 	def draw_rounded_code(self, stream):
 		"""
@@ -143,7 +144,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 					coords[0] + next_dir[0], coords[1] + next_dir[1],
 				)
 			p.close()
-		stream.drawPath(p, stroke=0, fill=1)
+		stream.drawPath(p, stroke=0, fill=1, fillMode=FILL_EVEN_ODD)
 
 	def addr(self, coords):
 		"""
