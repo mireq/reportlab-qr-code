@@ -28,12 +28,11 @@ DIRECTION = (
 	(-1,  0), # left
 	( 0, -1), # up
 )
-# left, straight, right
 DIRECTION_TURNS_CHECKS = (
-	(( 0, -1), ( 0,  0), (-1,  0)), # right
-	(( 0,  0), (-1,  0), (-1, -1)), # down
-	((-1,  0), (-1, -1), ( 0, -1)), # left
-	((-1, -1), ( 0, -1), ( 0,  0)), # up
+	( 0,  0), # right
+	(-1,  0), # down
+	(-1, -1), # left
+	( 0, -1), # up
 )
 
 
@@ -105,8 +104,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			scale = (self.size - (self.padding * 2)) / self.width
 			stream.scale(scale, scale)
 
-			#self.draw_code(stream)
-			self.draw_rounded_code(stream)
+			self.draw_code(stream)
+			#self.draw_rounded_code(stream)
 		finally:
 			stream.restoreState()
 
@@ -218,13 +217,6 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			# Or no pixels left
 			return
 
-		# Accumulated path
-		path = []
-		# Begin of line
-		path.append(tuple(coords))
-		# Default direction to right
-		direction = 0
-
 		def move():
 			nonlocal coords
 			step = DIRECTION[direction]
@@ -239,28 +231,37 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			# Step
 			coords += step
 
+		# Accumulated path
+		path = []
+		# Begin of line
+		path.append(tuple(coords))
+		# Default direction to right
+		direction = 0
+		# Default clockwiese direction
+		clockwiese = 1
+
 		# Move to right
 		move()
 
 		# From shape begin to end
 		while coords != path[0]:
 			# Trun left
-			val = self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[direction][0])
+			val = self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[(direction - 1) % 4])
 			if val:
 				path.append(tuple(coords))
-				direction = (direction - 1) % 4
+				direction = (direction - clockwiese) % 4
 				move()
 				continue
 
 			# Straight
-			val = self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[direction][1])
+			val = self.bitmap_get(coords + DIRECTION_TURNS_CHECKS[direction])
 			if val:
 				move()
 				continue
 
 			# Trun right
 			path.append(tuple(coords))
-			direction = (direction + 1) % 4
+			direction = (direction + clockwiese) % 4
 			move()
 
 		path.append(tuple(coords))
