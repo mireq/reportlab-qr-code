@@ -125,10 +125,10 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			# Move to start
 			transform(1.0, 0.0, 0.0, -1.0, self.x, self.y + self.size)
 
-			self.draw_background(stream)
-
-			# Set foreground
-			stream.setFillColor(self.fg)
+			if not self.mask:
+				self.draw_background(stream)
+				# Set foreground
+				stream.setFillColor(self.fg)
 
 			# Set transform matrix
 			scale = (self.size - (self.padding * 2.0)) / self.width
