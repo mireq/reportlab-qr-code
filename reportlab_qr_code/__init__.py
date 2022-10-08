@@ -64,6 +64,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		'x': Transforms.to_length,
 		'y': Transforms.to_length,
 		'invert': Transforms.to_bool,
+		'mask': Transforms.to_bool,
 		'radius': Transforms.to_float,
 		'enhanced_path': Transforms.to_bool,
 	}
@@ -76,6 +77,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 	x = 0
 	y = 0
 	invert = False
+	mask = False
 	enhanced_path = None
 	radius = 0
 
@@ -97,12 +99,31 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		self.bitmap_set((col, row), 0 if self.invert else 1)
 
 	def save(self, stream, kind=None):
-		stream.saveState()
+		if not self.mask:
+			stream.saveState()
+
+		a0, b0, c0, d0, e0, f0 = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0) # current matrix
+
+		def transform(a, b, c, d, e, f):
+			nonlocal a0, b0, c0, d0, e0, f0
+			matrix = (a0*a+c0*b, b0*a+d0*b, a0*c+c0*d, b0*c+d0*d, a0*e+c0*f+e0, b0*e+d0*f+f0)
+			a0, b0, c0, d0, e0, f0 = matrix
+			stream.transform(a, b, c, d, e, f)
+
+		def restore_transform():
+			nonlocal a0, b0, c0, d0, e0, f0
+			det = a0*d0 - c0*b0
+			a = d0/det
+			c = -c0/det
+			e = (c0*f0 - d0*e0)/det
+			d = a0/det
+			b = -b0/det
+			f = (e0*b0 - f0*a0)/det
+			stream.transform(a, b, c, d, e, f)
 
 		try:
 			# Move to start
-			stream.translate(self.x, self.y + self.size)
-			stream.scale(1, -1)
+			transform(1.0, 0.0, 0.0, -1.0, self.x, self.y + self.size)
 
 			self.draw_background(stream)
 
@@ -110,16 +131,23 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			stream.setFillColor(self.fg)
 
 			# Set transform matrix
-			stream.translate(self.padding, self.padding)
-			scale = (self.size - (self.padding * 2)) / self.width
-			stream.scale(scale, scale)
+			scale = (self.size - (self.padding * 2.0)) / self.width
+			transform(scale, 0.0, 0.0, scale, self.padding, self.padding)
 
+			p = stream.beginPath()
 			if self.radius == 0:
-				self.draw_code(stream)
+				p = self.draw_code(p)
 			else:
-				self.draw_rounded_code(stream)
+				p = self.draw_rounded_code(p)
+			if self.mask:
+				stream.clipPath(p, stroke=0)
+			else:
+				stream.drawPath(p, stroke=0, fill=1, fillMode=FILL_EVEN_ODD)
 		finally:
-			stream.restoreState()
+			if self.mask:
+				restore_transform()
+			else:
+				stream.restoreState()
 
 	def draw_background(self, stream):
 		"""
@@ -129,23 +157,21 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			stream.setFillColor(self.bg)
 			stream.rect(0, 0, self.size, self.size, fill=1, stroke=0)
 
-	def draw_code(self, stream):
+	def draw_code(self, p):
 		"""
 		Draw QR code
 		"""
-		p = stream.beginPath()
 		for segment in self.get_segments():
 			p.moveTo(segment[0][0], segment[0][1])
 			for coords in segment[1:-1]:
 				p.lineTo(coords[0], coords[1])
 			p.close()
-		stream.drawPath(p, stroke=0, fill=1, fillMode=FILL_EVEN_ODD)
+		return p
 
-	def draw_rounded_code(self, stream):
+	def draw_rounded_code(self, p):
 		"""
 		Draw QR code using rounded paths
 		"""
-		p = stream.beginPath()
 		for segment in self.get_segments():
 			segment = segment[:-1]
 			for i in range(0, len(segment)):
@@ -165,7 +191,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 					coords[0] + next_dir[0], coords[1] + next_dir[1],
 				)
 			p.close()
-		stream.drawPath(p, stroke=0, fill=1, fillMode=FILL_EVEN_ODD)
+		return p
 
 	def addr(self, coords):
 		"""
