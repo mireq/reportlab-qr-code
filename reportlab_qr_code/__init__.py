@@ -9,15 +9,9 @@ from reportlab.lib.units import toLength
 
 
 DEFAULT_PARAMS = {
-	'size': '5cm',
 	'padding': '2.5',
-	'fg': '#000000',
-	'bg': None,
 	'version': None,
 	'error_correction': 'L',
-	'x': 0,
-	'y': 0,
-	'invert': False
 }
 FALSE_VALUES = {'off', 'false', 'False', '0', False, 0, None}
 GENERATOR_PARAMS = {'size', 'padding', 'fg', 'bg', 'x', 'y', 'invert'}
@@ -48,11 +42,31 @@ class Vector(tuple):
 		return self.__class__(map(operator.add, self, other))
 
 
+class Transforms:
+	@staticmethod
+	def to_length(val):
+		return toLength(val) if isinstance(val, str) else float(val)
+
+	@staticmethod
+	def to_bool(val):
+		return val not in FALSE_VALUES
+
+
 class ReportlabImageBase(qrcode.image.base.BaseImage):
-	size = None
-	padding = None
+	PARAMS = {
+		'size': Transforms.to_length,
+		'padding': None,
+		'fg': None,
+		'bg': None,
+		'x': Transforms.to_length,
+		'y': Transforms.to_length,
+		'invert': Transforms.to_bool,
+	}
+
+	size = '5cm'
+	padding = '2.5'
 	bg = None
-	fg = None
+	fg = '#000000'
 	bitmap = None
 	x = 0
 	y = 0
@@ -60,9 +74,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
-		self.invert = self.invert not in FALSE_VALUES
 		self.bitmap = array.array('B', [1 if self.invert else 0] * self.width * self.width)
-		self.size = toLength(self.size) if isinstance(self.size, str) else float(self.size)
 		if isinstance(self.padding, str) and '%' in self.padding:
 			self.padding = float(self.padding[:-1]) * self.size / 100
 		else:
@@ -71,8 +83,6 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				self.padding = (self.size / (self.width + self.padding * 2)) * self.padding
 			except ValueError:
 				self.padding = toLength(self.padding) if isinstance(self.padding, str) else float(self.padding)
-		self.x = toLength(self.x) if isinstance(self.x, str) else float(self.x)
-		self.y = toLength(self.y) if isinstance(self.y, str) else float(self.y)
 
 	def drawrect(self, row, col):
 		self.bitmap_set((col, row), 0 if self.invert else 1)
@@ -269,21 +279,33 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 
 
 
-def reportlab_image_factory(**kwargs):
+def reportlab_image_factory(base=ReportlabImageBase, **kwargs):
 	"""
 	Returns ReportlabImage class for qrcode image_factory
 	"""
-	return type('ReportlabImage', (ReportlabImageBase,), kwargs)
+	params = {}
+	# Set default parameters
+	for key, transform in base.PARAMS.items():
+		default = getattr(base, key)
+		params[key] = default if transform is None else transform(default)
+	# Chceck each parameter
+	for key, value in kwargs.items():
+		# If is unknown, raise exception
+		if key not in base.PARAMS:
+			raise ValueError("Unknown attribute '%s'" % key)
+		# Get transform function like to int
+		transform = base.PARAMS[key]
+		try:
+			params[key] = value if transform is None else transform(value)
+		except Exception as e:
+			raise ValueError("Wrong value '%s' for attribute %s: %s" % (value, key, e))
+	return type('ReportlabImage', (base,), params)
 
 
 def clean_params(params):
 	"""
 	Validate and clean parameters
 	"""
-
-	for key, __ in params.items():
-		if key not in GENERATOR_PARAMS and key not in QR_PARAMS:
-			raise ValueError("Unknown attribute '%s'" % key)
 
 	if params['version'] is not None:
 		try:
@@ -297,7 +319,7 @@ def clean_params(params):
 		raise ValueError("Unknown error correction '%s', expected one of %s" % (params['error_correction'], ', '.join(QR_ERROR_CORRECTIONS.keys())))
 
 
-def parse_graphic_params(params):
+def parse_params_string(params):
 	"""
 	Parses params string in form:
 
@@ -334,7 +356,7 @@ def parse_graphic_params(params):
 
 
 def build_qrcode(params, text):
-	factory_kwargs = {key: value for key, value in params.items() if key in GENERATOR_PARAMS}
+	factory_kwargs = {key: value for key, value in params.items() if key not in QR_PARAMS}
 	qr_kwargs = {key: value for key, value in params.items() if key in QR_PARAMS}
 	qr = qrcode.QRCode(image_factory=reportlab_image_factory(**factory_kwargs), border=0, **qr_kwargs)
 	qr.add_data(text)
@@ -360,4 +382,4 @@ def qr(canvas, params=None):
 		<plugInGraphic module="reportlab_qrcode" function="qr">size=5cm;text;Simple text</plugInGraphic>
 	</illustration>
 	"""
-	build_qrcode(*parse_graphic_params(params)).save(canvas)
+	build_qrcode(*parse_params_string(params)).save(canvas)
