@@ -33,7 +33,7 @@ DIRECTION = (
 	(-1,  0), # left
 	( 0, -1), # up
 )
-# left, direct, right
+# left, straight, right
 DIRECTION_TURNS_CHECKS = (
 	(( 0, -1), ( 0,  0), (-1,  0)), # right
 	(( 0,  0), (-1,  0), (-1, -1)), # down
@@ -81,7 +81,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 
 		try:
 			# Move to start
-			stream.translate(self.x, self.y)
+			stream.translate(self.x, self.y + self.size)
+			stream.scale(1, -1)
 
 			self.draw_background(stream)
 
@@ -112,9 +113,9 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		"""
 		p = stream.beginPath()
 		for segment in self.get_segments():
-			p.moveTo(segment[0][0], self.width - segment[0][1])
+			p.moveTo(segment[0][0], segment[0][1])
 			for coords in segment[1:-1]:
-				p.lineTo(coords[0], self.width - coords[1])
+				p.lineTo(coords[0], coords[1])
 			p.close()
 		stream.drawPath(p, stroke=0, fill=1)
 
@@ -122,44 +123,25 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		"""
 		Draw QR code using rounded paths
 		"""
-		radius = 0.5
+		radius = 3.5
 		p = stream.beginPath()
-		#print("===============")
 		for segment in self.get_segments():
-			p.moveTo(segment[0][0] + radius, self.width - segment[0][1])
-			for i in range(1, len(segment) - 1):
+			segment = segment[:-1]
+			for i in range(0, len(segment)):
 				coords = segment[i]
 				prev_coords = segment[i - 1]
 				next_coords = segment[(i + 1) % len(segment)]
-				def direction(src, dst):
-					out = [0, 0]
-					if src[0] > dst[0]:
-						out[0] = 1
-					elif src[0] < dst[0]:
-						out[0] = -1
-					if src[1] > dst[1]:
-						out[1] = -1
-					elif src[1] < dst[1]:
-						out[1] = 1
-					return out
-				prev_dir = direction(prev_coords, coords)
-				next_dir = direction(next_coords, coords)
-				prev_dir = [radius * c for c in prev_dir]
-				next_dir = [radius * c for c in next_dir]
-				p.lineTo(coords[0] + prev_dir[0], self.width - coords[1] + prev_dir[1])
+				prev_dir = self.__calc_round_direction(prev_coords, coords, radius)
+				next_dir = self.__calc_round_direction(next_coords, coords, radius)
+				if i == 0:
+					p.moveTo(coords[0] + prev_dir[0], coords[1] + prev_dir[1])
+				else:
+					p.lineTo(coords[0] + prev_dir[0], coords[1] + prev_dir[1])
 				p.curveTo(
-					coords[0] + prev_dir[0], self.width - coords[1] + prev_dir[1],
-					coords[0], self.width - coords[1],
-					coords[0] + next_dir[0], self.width - coords[1] + next_dir[1],
+					coords[0] + prev_dir[0] * 0.45, coords[1] + prev_dir[1] * 0.45,
+					coords[0] + next_dir[0] * 0.45, coords[1] + next_dir[1] * 0.45,
+					coords[0] + next_dir[0], coords[1] + next_dir[1],
 				)
-
-			coords = segment[0]
-			p.lineTo(coords[0], self.width - coords[1] - radius)
-			p.curveTo(
-				coords[0], self.width - coords[1] - radius,
-				coords[0], self.width - coords[1],
-				coords[0] + radius, self.width - coords[1],
-			)
 			p.close()
 		stream.drawPath(p, stroke=0, fill=1)
 
@@ -280,6 +262,9 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 
 		return path
 
+	def __calc_round_direction(self, src, dst, radius):
+		return [min(max((s - d) * 0.5, -radius), radius) for s, d in zip(src, dst)]
+
 
 
 def reportlab_image_factory(**kwargs):
@@ -376,4 +361,4 @@ def qr(canvas, params=None):
 		<plugInGraphic module="reportlab_qrcode" function="qr">size=5cm;text;Simple text</plugInGraphic>
 	</illustration>
 	"""
-	qr_factory(params).save(canvas)
+	build_qrcode(*parse_graphic_params(params)).save(canvas)

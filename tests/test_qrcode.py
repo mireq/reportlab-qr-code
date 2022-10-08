@@ -3,10 +3,10 @@ import array
 import math
 
 import pytest
-from reportlab.pdfgen import canvas
 from reportlab.lib.units import toLength
+from reportlab.pdfgen import canvas
 
-from reportlab_qr_code import qr, qr_factory, qr_draw, reportlab_image_factory, DEFAULT_PARAMS
+from reportlab_qr_code import qr, qr_draw, reportlab_image_factory, build_qrcode, parse_graphic_params, DEFAULT_PARAMS
 
 
 def get_canvas():
@@ -54,7 +54,7 @@ def test_wrong_base64_padding():
 
 def test_custom_size():
 	qr(get_canvas(), 'size=3cm;text;Custom size') # check generator errors
-	img = qr_factory('size=3cm;text;Custom size')
+	img = build_qrcode(*parse_graphic_params('size=3cm;text;Custom size'))
 	assert img.size == toLength("3cm")
 
 
@@ -65,19 +65,19 @@ def test_custom_colors():
 
 def test_custom_percentage_padding():
 	qr(get_canvas(), 'padding=20%;text;Padding 20%')
-	img = qr_factory('size=100,padding=20%;text;Padding 20%')
+	img = build_qrcode(*parse_graphic_params('size=100,padding=20%;text;Padding 20%'))
 	assert img.padding == 20.
 
 
 def test_custom_absolute_padding():
 	qr(get_canvas(), 'padding=1cm;text;Padding 1cm')
-	img = qr_factory('padding=1cm;text;Padding 1cm')
+	img = build_qrcode(*parse_graphic_params('padding=1cm;text;Padding 1cm'))
 	assert img.padding == pytest.approx(toLength('1cm'), 0.01)
 
 
 def test_custom_pixel_padding():
 	qr(get_canvas(), 'padding=1;text;Padding 1 pixel')
-	img = qr_factory('padding=1;text;Padding 1 pixel')
+	img = build_qrcode(*parse_graphic_params('padding=1;text;Padding 1 pixel'))
 	padding_size = img.padding
 	pixel_size = img.size / (img.width + 2.0)
 	assert padding_size == pytest.approx(pixel_size, 0.01)
@@ -194,9 +194,9 @@ def test_python_api_offset():
 
 
 def test_inverted():
-	img_default = qr_factory(';text;Text')
-	img_standard = qr_factory('invert=0;text;Text')
-	img_inverted = qr_factory('invert=1;text;Text')
+	img_default = build_qrcode(*parse_graphic_params(';text;Text'))
+	img_standard = build_qrcode(*parse_graphic_params('invert=0;text;Text'))
+	img_inverted = build_qrcode(*parse_graphic_params('invert=1;text;Text'))
 
 	# Default is not inverted
 	assert img_default.bitmap == img_standard.bitmap
