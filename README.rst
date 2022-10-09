@@ -101,13 +101,12 @@ stdout.
 
 Arguments:
 
---outfile [OUTFILE]   Output file or stdout if omitted
+--outfile             Output file or stdout if omitted
 --base64              Base64 encoded text
 --compress            PDF compression (default enabled)
---no-compress
+--no-compress         Disable compression
 --version VERSION     QR code version
---error_correction    {L,M,Q,H}
-                      Error correction strength
+--error_correction    Error correction strength (L, M, Q or H)
 --size SIZE           Code size
 --padding PADDING     Padding
 --fg FG               Foreground color
@@ -115,8 +114,8 @@ Arguments:
 --invert              Invert
 --radius RADIUS       Round code (radius)
 --enhanced-path       Enhanced path rendering
---no-enhanced-path
---gradient GRADIENT   Either "linear x1 y1 x2 y2 colors" or "radial x y radius colors" Dimensions are in range [0, 1], position (0, 0) is top left corner, (1, 1) is bottomr right corner. Colors is list "[position] color" e.g. "0.0 #ffffff 1.0 #000000". Position is optional. Without position argument, distances are calculated automatically. Example: --gradient "linear 0.0 0.0 0.1 1.0 0.5 \#1050c0 0.3 \#1050c0 0.7 \#e0e000"
+--no-enhanced-path    Disable path enhancement
+--gradient GRADIENT   Either ``"linear x1 y1 x2 y2 colors"`` or ``"radial x y radius colors"`` Dimensions are in range (0, 1), position (0, 0) is top left corner, (1, 1) is bottom right corner. Colors is list ``"[position] color"`` e.g. ``"0.0 #ffffff 1.0 #000000"``. Position is optional. Without position argument, distances are calculated automatically. Example: ``--gradient "linear 0.0 0.0 0.1 1.0 0.5 \#1050c0 0.3 \#1050c0 0.7 \#e0e000"``
 
 Some crazy examples:
 
