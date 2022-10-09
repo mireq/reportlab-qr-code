@@ -1,3 +1,19 @@
+## 1.5.0 (2022-10-09)
+
+### Feat
+
+- Added command interface
+- Added standalone command to generate QR code
+- Added make test command
+
+### Fix
+
+- Added missing fill rule
+
+### Refactor
+
+- Removed default padding
+
 ## 1.4.0 (2022-10-08)
 
 ### Fix
