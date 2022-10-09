@@ -10,7 +10,6 @@ from reportlab.lib.units import toLength
 
 
 DEFAULT_PARAMS = {
-	'padding': '2.5',
 	'version': None,
 	'error_correction': 'L',
 }
