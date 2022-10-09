@@ -5,6 +5,6 @@ help:
 
 test:
 	coverage erase
-	coverage run --source=reportlab_qr_code --branch -m pytest .
+	coverage run --source=reportlab_qr_code --omit=reportlab_qr_code/__main__.py --branch -m pytest .
 	coverage report -m
 	coverage html
