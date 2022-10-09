@@ -84,6 +84,81 @@ QR code can be inserted to canvas using ``qr_draw(canvas, contents, **params)`` 
 	c = canvas.Canvas("out.pdf")
 	qr_draw(c, "Hello world", x="1cm", y="1cm", size="10cm")
 
+Command line interface
+^^^^^^^^^^^^^^^^^^^^^^
+
+This module can be used as standalone command to generate PDF document.
+
+Example:
+
+.. code:: bash
+
+	python -m reportlab_qr_code "Content" --outfile qr.pdf
+
+Content argument is optional. Without this argument, command will read from
+stdin. Output file is optional too, without argument, command will write to
+stdout.
+
+Arguments:
+
+--outfile [OUTFILE]   Output file or stdout if omitted
+--base64              Base64 encoded text
+--compress            PDF compression (default enabled)
+--no-compress
+--version VERSION     QR code version
+--error_correction    {L,M,Q,H}
+                      Error correction strength
+--size SIZE           Code size
+--padding PADDING     Padding
+--fg FG               Foreground color
+--bg BG               Background color
+--invert              Invert
+--radius RADIUS       Round code (radius)
+--enhanced-path       Enhanced path rendering
+--no-enhanced-path
+--gradient GRADIENT   Either "linear x1 y1 x2 y2 colors" or "radial x y radius colors" Dimensions are in range [0, 1], position (0, 0) is top left corner, (1, 1) is bottomr right corner. Colors is list "[position] color" e.g. "0.0 #ffffff 1.0 #000000". Position is optional. Without position argument, distances are calculated automatically. Example: --gradient "linear 0.0 0.0 0.1 1.0 0.5 \#1050c0 0.3 \#1050c0 0.7 \#e0e000"
+
+Some crazy examples:
+
+.. code:: bash
+
+	# 1
+	python -m reportlab_qr_code "Padding 1cm" \
+		--outfile qr.pdf \
+		--error_correction L \
+		--size 10cm \
+		--padding 1cm \
+		--radius 0.5 \
+		--enhanced-path \
+		--gradient "linear 0 1 1 0 0.1 \#ff0000 0.9 \#0000ff"
+	# 2
+	python -m reportlab_qr_code "Padding 1cm" \
+		--outfile qr.pdf \
+		--error_correction L \
+		--size 10cm \
+		--padding 1cm \
+		--radius 3.5 \
+		--gradient "linear 1 0 0 1 0.1 \#ff0000 0.9 \#0000ff"
+	# 3
+	python -m reportlab_qr_code "OPENSOURCE" \
+		--outfile qr.pdf \
+		--size 10cm \
+		--padding 1cm \
+		--radius 1.5 \
+		--bg "\#ddddcc" \
+		--fg="\#665510"
+	# 4
+	python -m reportlab_qr_code "Padding 1cm" \
+		--outfile qr.pdf \
+		--error_correction L \
+		--size 10cm \
+		--padding 1cm \
+		--radius 3.5 \
+		--enhanced-path \
+		--gradient "linear 0 1 1 0 0.1 \#ff0000 0.9 \#0000ff"
+
+.. image:: https://raw.github.com/wiki/mireq/reportlab-qr-code/crazy.png?v2022-10-09
+
 Parameter list
 ^^^^^^^^^^^^^^
 
