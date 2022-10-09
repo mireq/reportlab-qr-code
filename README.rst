@@ -34,7 +34,7 @@ gaps in every situation.
 
 Smaller output
 
-First lorem ipsum paragraph products using reportlab-qrcode vector image with
+First paragraph of Lorem ipsum products using reportlab-qrcode vector image with
 size 181 418 bytes.  My code with produces only 34 131 bytes (81% reduction in
 size).
 
