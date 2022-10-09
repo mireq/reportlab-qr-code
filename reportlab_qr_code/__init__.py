@@ -139,7 +139,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			else:
 				p = self.draw_rounded_code(p)
 			if self.mask:
-				stream.clipPath(p, stroke=0)
+				stream.clipPath(p, stroke=0, fill=1, fillMode=FILL_EVEN_ODD)
 			else:
 				stream.drawPath(p, stroke=0, fill=1, fillMode=FILL_EVEN_ODD)
 		finally:
