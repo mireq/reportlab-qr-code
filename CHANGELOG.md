@@ -1,3 +1,15 @@
+## 1.6.0 (2022-10-23)
+
+### Fix
+
+- Don't open file if arguments are not successfully parsed
+
+### Feat
+
+- Added negative command line argument
+- Added alpha channel support
+- Added negative image support
+
 ## 1.5.0 (2022-10-09)
 
 ### Feat
