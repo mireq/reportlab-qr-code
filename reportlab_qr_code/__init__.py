@@ -63,6 +63,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		'x': Transforms.to_length,
 		'y': Transforms.to_length,
 		'invert': Transforms.to_bool,
+		'negative': Transforms.to_bool,
 		'mask': Transforms.to_bool,
 		'radius': Transforms.to_float,
 		'enhanced_path': Transforms.to_bool,
@@ -76,6 +77,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 	x = 0
 	y = 0
 	invert = False
+	negative = False
 	mask = False
 	enhanced_path = None
 	radius = 0
@@ -134,6 +136,13 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			transform(scale, 0.0, 0.0, scale, self.padding, self.padding)
 
 			p = stream.beginPath()
+			if self.negative:
+				pad = self.padding / scale
+				p.moveTo(-pad, -pad)
+				p.lineTo(self.width + pad, -pad)
+				p.lineTo(self.width + pad, self.width + pad)
+				p.lineTo(-pad, self.width + pad)
+				p.close()
 			if self.radius == 0:
 				p = self.draw_code(p)
 			else:

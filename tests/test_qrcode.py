@@ -114,6 +114,12 @@ def test_mask():
 	assert img.mask == True
 
 
+def test_negative():
+	qr(get_canvas(), 'negative=1;text;Negative')
+	img = build_qrcode(*parse_params_string('negative=1;text;Negative'))
+	assert img.negative == True
+
+
 def test_custom_error_correction():
 	c = get_canvas()
 	qr(c, 'error_correction=M;text;Error correction')
