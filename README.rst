@@ -112,6 +112,7 @@ Arguments:
 --fg                  Foreground color
 --bg                  Background color
 --invert              Invert
+--negative            Instead of invert bits, inverts whole image
 --radius              Round code (radius)
 --enhanced-path       Enhanced path rendering
 --no-enhanced-path    Disable path enhancement
@@ -180,6 +181,15 @@ Parameter list
 	* - ``bg``
 	  - transparent
 	  - background color
+	* - ``invert``
+	  - False
+	  - invert pixel values
+	* - ``mask``
+	  - False
+	  - render only mask
+	* - ``negative``
+	  - False
+	  - render negative of code
 	* - ``version``
 	  - 1
 	  - version passed to qr code library
