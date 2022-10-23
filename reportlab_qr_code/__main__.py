@@ -27,6 +27,7 @@ def generate(args):
 	if args.bg is not None:
 		params['bg'] = args.bg
 	params['invert'] = bool(args.invert)
+	params['negative'] = bool(args.negative)
 	params['radius'] = args.radius
 	if args.enhanced_path is not None:
 		params['enhanced_path'] = args.enhanced_path
@@ -155,6 +156,7 @@ Example: --gradient "linear 0.0 0.0 0.1 1.0 0.5 \#1050c0 0.3 \#1050c0 0.7 \#e0e0
 	parser.add_argument('--fg', type=str, help="Foreground color")
 	parser.add_argument('--bg', type=str, help="Background color")
 	parser.add_argument('--invert', action='store_true', help="Invert")
+	parser.add_argument('--negative', action='store_true', help="Render negative")
 	parser.add_argument('--radius', type=float, help="Round code (radius)", default=0.0)
 	parser.add_argument('--enhanced-path', action='store_true', help="Enhanced path rendering")
 	parser.add_argument('--no-enhanced-path', dest='enhanced_path', action='store_false')
