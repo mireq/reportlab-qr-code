@@ -39,34 +39,43 @@ def generate(args):
 		text = text.encode('utf-8')
 	qr = build_qrcode(params, text)
 
-	c = canvas.Canvas(
-		args.outfile,
-		pagesize=(qr.size, qr.size),
-		pageCompression=1 if args.compress else 0
-	)
-	qr.save(c)
+	if not args.outfile or args.outfile == '-':
+		fp = sys.stdout.buffer
+	else:
+		fp = open(args.outfile, 'wb')
 
-	if args.gradient:
-		gradient_type, coords, colors, positions = args.gradient
-		if len(colors) == 1:
-			c.setFillColor(colors[0][1])
-			c.rect(0, 0, qr.size, qr.size, fill=1, stroke=0)
-		else:
-			if gradient_type == 'linear':
-				coords = [
-					coords[0] * qr.size, (1.0 - coords[1]) * qr.size,
-					coords[2] * qr.size, (1.0 - coords[3]) * qr.size,
-				]
-				c.linearGradient(*coords, colors=colors, positions=positions)
+	try:
+		c = canvas.Canvas(
+			fp,
+			pagesize=(qr.size, qr.size),
+			pageCompression=1 if args.compress else 0
+		)
+		qr.save(c)
+
+		if args.gradient:
+			gradient_type, coords, colors, positions = args.gradient
+			if len(colors) == 1:
+				c.setFillColor(colors[0][1])
+				c.rect(0, 0, qr.size, qr.size, fill=1, stroke=0)
 			else:
-				coords = [
-					coords[0] * qr.size, (1.0 - coords[1]) * qr.size,
-					coords[2] * qr.size,
-				]
-				c.radialGradient(*coords, colors=colors, positions=positions)
+				if gradient_type == 'linear':
+					coords = [
+						coords[0] * qr.size, (1.0 - coords[1]) * qr.size,
+						coords[2] * qr.size, (1.0 - coords[3]) * qr.size,
+					]
+					c.linearGradient(*coords, colors=colors, positions=positions)
+				else:
+					coords = [
+						coords[0] * qr.size, (1.0 - coords[1]) * qr.size,
+						coords[2] * qr.size,
+					]
+					c.radialGradient(*coords, colors=colors, positions=positions)
 
-	c.showPage()
-	c.save()
+		c.showPage()
+		c.save()
+	finally:
+		if fp is not sys.stdout.buffer:
+			fp.close()
 
 
 def parse_gradient(val):
@@ -145,7 +154,7 @@ Example: --gradient "linear 0.0 0.0 0.1 1.0 0.5 \#1050c0 0.3 \#1050c0 0.7 \#e0e0
 
 	parser = argparse.ArgumentParser(description="Generate qr code")
 	parser.add_argument('text', nargs='?', type=str, help="Input text or stdin if omitted")
-	parser.add_argument('--outfile', nargs='?', type=argparse.FileType('wb'), default=sys.stdout.buffer, help="Output file or stdout if omitted")
+	parser.add_argument('--outfile', nargs='?', help="Output file or stdout if omitted")
 	parser.add_argument('--base64', action='store_true', help="Base64 encoded text")
 	parser.add_argument('--compress', action='store_true', help="PDF compression (default enabled)")
 	parser.add_argument('--no-compress', dest='compress', action='store_false')
