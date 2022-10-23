@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import array
 import operator
+import re
 from base64 import b64decode
-from reportlab.pdfgen.canvas import FILL_EVEN_ODD
-import sys
 
 import qrcode
 from reportlab.lib.units import toLength
+from reportlab.pdfgen.canvas import FILL_EVEN_ODD
 
 
 DEFAULT_PARAMS = {
@@ -73,6 +73,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 	padding = '2.5'
 	bg = None
 	fg = '#000000'
+	bg_alpha = 1.0
+	fg_alpha = 1.0
 	bitmap = None
 	x = 0
 	y = 0
@@ -95,6 +97,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				self.padding = toLength(self.padding) if isinstance(self.padding, str) else float(self.padding)
 		if self.enhanced_path is None:
 			self.enhanced_path = self.radius == 0
+		self.parse_color('fg')
+		self.parse_color('bg')
 
 	def drawrect(self, row, col):
 		self.bitmap_set((col, row), 0 if self.invert else 1)
@@ -130,6 +134,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				self.draw_background(stream)
 				# Set foreground
 				stream.setFillColor(self.fg)
+				stream.setFillAlpha(self.fg_alpha)
 
 			# Set transform matrix
 			scale = (self.size - (self.padding * 2.0)) / self.width
@@ -154,6 +159,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		finally:
 			if self.mask:
 				restore_transform()
+				stream.setFillAlpha(1.0)
 			else:
 				stream.restoreState()
 
@@ -163,6 +169,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		"""
 		if self.bg is not None:
 			stream.setFillColor(self.bg)
+			stream.setFillAlpha(self.bg_alpha)
 			stream.rect(0, 0, self.size, self.size, fill=1, stroke=0)
 
 	def draw_code(self, p):
@@ -247,6 +254,18 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			segments.append(segment)
 			segment = self.__consume_segment()
 		return segments
+
+	def parse_color(self, color_name):
+		color = getattr(self, color_name)
+		if color is None:
+			return
+		alpha = 1.0
+		if re.match(r'^#[0-9a-f]{8}$', color.lower()):
+			color = color.lower()
+			alpha = int(color[-2:], base=16) / 255
+			color = color[:7]
+		setattr(self, color_name, color)
+		setattr(self, f'{color_name}_alpha', alpha)
 
 	def __consume_segment(self):
 		"""

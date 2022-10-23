@@ -120,6 +120,13 @@ def test_negative():
 	assert img.negative == True
 
 
+def test_alpha():
+	qr(get_canvas(), 'negative=1;text;Negative')
+	img = build_qrcode(*parse_params_string('fg=#ffffffcc,bg=#ffffff80;text;Negative'))
+	assert img.fg_alpha == pytest.approx(0.8, 0.01)
+	assert img.bg_alpha == pytest.approx(0.5, 0.01)
+
+
 def test_custom_error_correction():
 	c = get_canvas()
 	qr(c, 'error_correction=M;text;Error correction')
