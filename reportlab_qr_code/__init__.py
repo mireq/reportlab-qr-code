@@ -148,6 +148,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 
 		a0, b0, c0, d0, e0, f0 = (1.0, 0.0, 0.0, 1.0, 0.0, 0.0) # current matrix
 
+		self.clear_area()
+
 		def transform(a, b, c, d, e, f):
 			nonlocal a0, b0, c0, d0, e0, f0
 			matrix = (a0*a+c0*b, b0*a+d0*b, a0*c+c0*d, b0*c+d0*d, a0*e+c0*f+e0, b0*e+d0*f+f0)
@@ -328,6 +330,12 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		w_px = max(min(self.convert_coordinate_to_pixels(x2) - x_px, self.width - x_px), 1)
 		h_px = max(min(self.convert_coordinate_to_pixels(y2) - y_px, self.width - y_px), 1)
 		return [x_px, y_px, w_px, h_px]
+
+	def clear_area(self):
+		for hole in self.hole:
+			for x in range(hole[0], hole[0] + hole[2]):
+				for y in range(hole[1], hole[1] + hole[3]):
+					self.bitmap_set((x, y), 0)
 
 	def __consume_segment(self):
 		"""
