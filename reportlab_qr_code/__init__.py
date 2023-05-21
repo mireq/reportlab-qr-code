@@ -71,11 +71,11 @@ class Transforms:
 
 	@staticmethod
 	def to_area(val):
-		val = val.split(':')
-		if len(val) % 4 != 0:
+		parts = val.split(':')
+		if len(parts) % 4 != 0:
 			raise ValueError(f"Vrong value `{val}`, expected coordinates: x:y:w:h")
 		coordinates = []
-		for coordinate in val:
+		for coordinate in parts:
 			if coordinate[-1:] == '%':
 				coordinates.append(Length(LENGTH_RELATIVE, float(coordinate[:-1]) / 100))
 			else:
@@ -83,7 +83,11 @@ class Transforms:
 					coordinates.append(Length(LENGTH_PIXELS, int(coordinate)))
 				except ValueError:
 					coordinates.append(Length(LENGTH_ABSOLUTE, Transforms.to_length(coordinate)))
-		return [coordinates[i:i + 4] for i in range(0, len(coordinates), 4)]
+		coordinates = [coordinates[i:i + 4] for i in range(0, len(coordinates), 4)]
+		for area in coordinates:
+			if not all(coordinate.kind == area[0].kind for coordinate in area):
+				raise ValueError(f"Mixed units in `{val}`")
+		return coordinates
 
 
 class ReportlabImageBase(qrcode.image.base.BaseImage):
