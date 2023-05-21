@@ -2,6 +2,7 @@
 import array
 import operator
 import re
+import math
 from base64 import b64decode
 
 import qrcode
@@ -34,6 +35,21 @@ DIRECTION_TURNS_CHECKS = (
 	( 0, -1), # up
 )
 
+LENGTH_ABSOLUTE = 0
+LENGTH_PIXELS = 1
+LENGTH_RELATIVE = 2
+
+
+class Length(object):
+	__slots__ = ['kind', 'value']
+
+	def __init__(self, kind, value):
+		self.kind = kind
+		self.value = value
+
+	def __repr__(self):
+		return f'{self.__class__.__name__}({self.kind!r}, {self.value!r})'
+
 
 class Vector(tuple):
 	def __add__(self, other):
@@ -53,6 +69,22 @@ class Transforms:
 	def to_float(val):
 		return float(val)
 
+	@staticmethod
+	def to_area(val):
+		val = val.split(':')
+		if len(val) % 4 != 0:
+			raise ValueError(f"Vrong value `{val}`, expected coordinates: x:y:w:h")
+		coordinates = []
+		for coordinate in val:
+			if coordinate[-1:] == '%':
+				coordinates.append(Length(LENGTH_RELATIVE, float(coordinate[:-1]) / 100))
+			else:
+				try:
+					coordinates.append(Length(LENGTH_PIXELS, int(coordinate)))
+				except ValueError:
+					coordinates.append(Length(LENGTH_ABSOLUTE, Transforms.to_length(coordinate)))
+		return [coordinates[i:i + 4] for i in range(0, len(coordinates), 4)]
+
 
 class ReportlabImageBase(qrcode.image.base.BaseImage):
 	PARAMS = {
@@ -67,6 +99,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		'mask': Transforms.to_bool,
 		'radius': Transforms.to_float,
 		'enhanced_path': Transforms.to_bool,
+		'hole': Transforms.to_area,
 	}
 
 	size = toLength('5cm')
@@ -82,6 +115,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 	negative = False
 	mask = False
 	enhanced_path = None
+	hole = []
 	radius = 0
 
 	def __init__(self, *args, **kwargs):
@@ -99,6 +133,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			self.enhanced_path = self.radius == 0
 		self.parse_color('fg')
 		self.parse_color('bg')
+		self.hole = [self.convert_area_to_pixels(fragment) for fragment in self.hole]
 
 	def drawrect(self, row, col):
 		self.bitmap_set((col, row), 0 if self.invert else 1)
@@ -266,6 +301,25 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			color = color[:7]
 		setattr(self, color_name, color)
 		setattr(self, f'{color_name}_alpha', alpha)
+
+	def convert_absolute_to_relative(self, coordinate):
+		if coordinate.kind == LENGTH_ABSOLUTE:
+			return Length(LENGTH_RELATIVE, (coordinate.value - self.padding) / (self.size - self.padding * 2))
+		return coordinate
+
+	def convert_coordinate_to_pixels(self, coordinate, round_up=False):
+		if coordinate.kind == LENGTH_PIXELS:
+			return coordinate.value
+		else:
+			value = coordinate.value * self.width
+			return math.ceil(value) if round_up else math.floor(value)
+
+	def convert_area_to_pixels(self, area):
+		area = [self.convert_absolute_to_relative(coordinate) for coordinate in area]
+		x, y, w, h = area
+		x_px = self.convert_coordinate_to_pixels(x)
+		y_px = self.convert_coordinate_to_pixels(y)
+		return [x_px, y_px, w, h]
 
 	def __consume_segment(self):
 		"""

@@ -162,5 +162,17 @@
 		<plugInGraphic baseDir="." module="utils" function="gradient" />
 	</illustration>
 
+	<para style="Normal">Logo</para>
+	<illustration height="5cm" width="5cm" align="center">
+		<plugInGraphic module="reportlab_qr_code" function="qr">hole=30%:40%:40%:20%;text;Logo</plugInGraphic>
+		<lineMode width="0.5" /><lines>&lines5;</lines>
+	</illustration>
+
+	<para style="Normal">Logo</para>
+	<illustration height="5cm" width="5cm" align="center">
+		<plugInGraphic module="reportlab_qr_code" function="qr">hole=3cm:2cm:1cm:0.5cm;text;Logo</plugInGraphic>
+		<lineMode width="0.5" /><lines>&lines5;</lines>
+	</illustration>
+
 </story>
 </document>
