@@ -151,8 +151,14 @@ def test_not_number_version():
 
 def test_wrong_area_definition():
 	c = get_canvas()
-	with pytest.raises(ValueError, match=r"Wrong value `1cm:2cm`, expected coordinates: x:y:w:h"):
+	with pytest.raises(ValueError, match=r".*Wrong value .*, expected coordinates: x:y:w:h"):
 		qr(c, 'hole=1cm:2cm;text;Text')
+
+
+def test_mixed_units():
+	c = get_canvas()
+	with pytest.raises(ValueError, match=r".*Mixed units in.*"):
+		qr(c, 'hole=1cm:2cm:3:4%;text;Text')
 
 
 def draw_image(bitmap):
