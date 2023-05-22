@@ -73,7 +73,7 @@ class Transforms:
 	def to_area(val):
 		parts = val.split(':')
 		if len(parts) % 4 != 0:
-			raise ValueError(f"Vrong value `{val}`, expected coordinates: x:y:w:h")
+			raise ValueError(f"Wrong value `{val}`, expected coordinates: x:y:w:h")
 		coordinates = []
 		for coordinate in parts:
 			if coordinate[-1:] == '%':
