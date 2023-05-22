@@ -149,6 +149,12 @@ def test_not_number_version():
 		qr(c, 'version=xx;text;Text')
 
 
+def test_wrong_area_definition():
+	c = get_canvas()
+	with pytest.raises(ValueError, match=r"Wrong value `1cm:2cm`, expected coordinates: x:y:w:h"):
+		qr(c, 'hole=1cm:2cm;text;Text')
+
+
 def draw_image(bitmap):
 	width = int(math.sqrt(len(bitmap)))
 	img = reportlab_image_factory()(border=0, width=width, box_size=1)
