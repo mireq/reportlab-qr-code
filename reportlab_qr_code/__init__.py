@@ -4,6 +4,7 @@ import operator
 import re
 import math
 from base64 import b64decode
+from dataclasses import dataclass
 
 import qrcode
 from reportlab.lib.units import toLength
@@ -40,15 +41,12 @@ LENGTH_PIXELS = 1
 LENGTH_RELATIVE = 2
 
 
+@dataclass
 class Length(object):
 	__slots__ = ['kind', 'value']
 
-	def __init__(self, kind, value):
-		self.kind = kind
-		self.value = value
-
-	def __repr__(self):
-		return f'{self.__class__.__name__}({self.kind!r}, {self.value!r})'
+	kind: int
+	value: int
 
 
 class Vector(tuple):
