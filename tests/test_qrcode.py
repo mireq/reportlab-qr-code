@@ -162,8 +162,27 @@ def test_mixed_units():
 
 
 def test_area():
+	qr(get_canvas(), 'hole=0cm:0cm:5cm:5cm,size=5cm;text;Area')
 	img = build_qrcode(*parse_params_string('hole=0cm:0cm:5cm:5cm,size=5cm;text;Area'))
 	assert img.hole == [[0, 0, img.width, img.width]]
+	qr(get_canvas(), 'hole=1cm:2cm:3cm:1cm,size=5cm;text;Area')
+	img = build_qrcode(*parse_params_string('hole=1cm:2cm:3cm:1cm,size=5cm;text;Area'))
+	assert img.hole[0][0] == pytest.approx(img.width / 5 * 1, 1)
+	assert img.hole[0][1] == pytest.approx(img.width / 5 * 2, 1)
+	assert img.hole[0][2] == pytest.approx(img.width / 5 * 3, 1)
+	assert img.hole[0][3] == pytest.approx(img.width / 5 * 1, 1)
+	qr(get_canvas(), 'hole=20%:40%:60%:20%,size=5cm;text;Area')
+	img = build_qrcode(*parse_params_string('hole=20%:40%:60%:20%,size=5cm;text;Area'))
+	assert img.hole[0][0] == pytest.approx(img.width / 5 * 1, 1)
+	assert img.hole[0][1] == pytest.approx(img.width / 5 * 2, 1)
+	assert img.hole[0][2] == pytest.approx(img.width / 5 * 3, 1)
+	assert img.hole[0][3] == pytest.approx(img.width / 5 * 1, 1)
+	qr(get_canvas(), 'hole=1:2:3:4,size=5cm;text;Area')
+	img = build_qrcode(*parse_params_string('hole=1:2:3:4,size=5cm;text;Area'))
+	assert img.hole[0][0] == pytest.approx(1, 1)
+	assert img.hole[0][1] == pytest.approx(2, 1)
+	assert img.hole[0][2] == pytest.approx(3, 1)
+	assert img.hole[0][3] == pytest.approx(4, 1)
 
 
 def draw_image(bitmap):
