@@ -161,6 +161,11 @@ def test_mixed_units():
 		qr(c, 'hole=1cm:2cm:3:4%;text;Text')
 
 
+def test_area():
+	img = build_qrcode(*parse_params_string('hole=0cm:0cm:5cm:5cm,size=5cm;text;Area'))
+	assert img.hole == [[0, 0, img.width, img.width]]
+
+
 def draw_image(bitmap):
 	width = int(math.sqrt(len(bitmap)))
 	img = reportlab_image_factory()(border=0, width=width, box_size=1)
