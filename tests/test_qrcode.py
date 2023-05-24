@@ -187,7 +187,7 @@ def test_area():
 
 def draw_image(bitmap):
 	width = int(math.sqrt(len(bitmap)))
-	img = reportlab_image_factory()(border=0, width=width, box_size=1)
+	img = reportlab_image_factory()(border=0, width=width, box_size=1, qrcode_modules=[])
 	for address, val in enumerate(bitmap):
 		if val:
 			img.drawrect(address // width, address % width)
