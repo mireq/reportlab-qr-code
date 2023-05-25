@@ -29,6 +29,7 @@ def generate(args):
 	params['invert'] = bool(args.invert)
 	params['negative'] = bool(args.negative)
 	params['radius'] = args.radius
+	params['hole'] = args.hole or []
 	if args.enhanced_path is not None:
 		params['enhanced_path'] = args.enhanced_path
 	if args.gradient:
@@ -151,6 +152,10 @@ Colors is list "[position] color" e.g. "0.0 #ffffff 1.0 #000000". Position is
 optional. Without position argument, distances are calculated automatically.
 Example: --gradient "linear 0.0 0.0 0.1 1.0 0.5 \#1050c0 0.3 \#1050c0 0.7 \#e0e000"
 	"""
+	area_help = """
+Coordinates in form x:y:w:h. Allowed are absolute length units, relative units (%%)
+and pixels (without unit suffix).
+"""
 
 	parser = argparse.ArgumentParser(description="Generate qr code")
 	parser.add_argument('text', nargs='?', type=str, help="Input text or stdin if omitted")
@@ -170,6 +175,7 @@ Example: --gradient "linear 0.0 0.0 0.1 1.0 0.5 \#1050c0 0.3 \#1050c0 0.7 \#e0e0
 	parser.add_argument('--enhanced-path', action='store_true', help="Enhanced path rendering")
 	parser.add_argument('--no-enhanced-path', dest='enhanced_path', action='store_false')
 	parser.add_argument('--gradient', type=parse_gradient, help=gradient_help)
+	parser.add_argument('--hole', type=str, help=area_help)
 	parser.set_defaults(compress=True)
 	parser.set_defaults(enhanced_path=None)
 	args = parser.parse_args()
