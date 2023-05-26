@@ -117,6 +117,7 @@ Arguments:
 --enhanced-path       Enhanced path rendering
 --no-enhanced-path    Disable path enhancement
 --gradient            Either ``"linear x1 y1 x2 y2 colors"`` or ``"radial x y radius colors"`` Dimensions are in range (0, 1), position (0, 0) is top left corner, (1, 1) is bottom right corner. Colors is list ``"[position] color"`` e.g. ``"0.0 #ffffff 1.0 #000000"``. Position is optional. Without position argument, distances are calculated automatically. Example: ``--gradient "linear 0.0 0.0 0.1 1.0 0.5 \#1050c0 0.3 \#1050c0 0.7 \#e0e000"``
+--hole                Coordinates in form x:y:w:h. Allowed are absolute length units, relative units (%) and pixels (without unit suffix).
 
 Some crazy examples:
 
