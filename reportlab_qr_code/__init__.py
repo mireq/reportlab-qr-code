@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import array
+import itertools
 import math
 import operator
 import re
@@ -468,9 +469,10 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				setattr(self, prop, value)
 
 		draw_mask = definition['draw']
-		draw_mask = [
-			('+', 'align'),
-		]
+		#draw_mask = [
+		#	#('+', 'all'),
+		#	('+', 'align'),
+		#]
 		mask = None
 		for operation, area in draw_mask:
 			if mask is None:
@@ -486,8 +488,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				for x in range(area[0], area[0] + area[2]):
 					for y in range(area[1], area[1] + area[3]):
 						mask_action(x, y)
-		self.bitmap = mask
-		#self.bitmap = array.array('B', [bit * mask for bit, mask in zip(self.bitmap, mask)])
+		#self.bitmap = mask
+		self.bitmap = array.array('B', [bit * mask for bit, mask in zip(self.bitmap, mask)])
 
 	def get_version(self):
 		return (self.width - 21) // 4 + 1
@@ -495,8 +497,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 	def get_align_positions(self):
 		positions = []
 		version = self.get_version()
-		for x in ALIGN_POSITION_TABLE[version]:
-			for y in ALIGN_POSITION_TABLE[version]:
+		for x in ALIGN_POSITION_TABLE[version - 1]:
+			for y in ALIGN_POSITION_TABLE[version - 1]:
 				# exclude eyes
 				if x < 8 and y < 8 or x > self.width - 8 and y < 8 or x < 8 and y > self.width - 8:
 					continue
@@ -531,9 +533,12 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		elif area_name == 'eyeballs':
 			return self.get_fragment_area('eyeball1') + self.get_fragment_area('eyeball2') + self.get_fragment_area('eyeball3')
 		elif area_name == 'align':
-			version = (self.width - 21) // 4 + 1
-			print(self.get_align_positions())
-			return []
+			return [(x - 2, y - 2, 5, 5) for x, y in self.get_align_positions()]
+		elif area_name == 'alignpupil':
+			return [(x, y, 1, 1) for x, y in self.get_align_positions()]
+		elif area_name == 'alignball':
+			patterns = [[(x - 2, y - 2, 5, 1), (x - 2, y + 2, 5, 1), (x - 2, y - 1, 1, 3), (x + 2, y - 1, 1, 3)] for x, y in self.get_align_positions()]
+			return list(itertools.chain(*patterns))
 		raise ValueError(f"Unknown area {area_name}")
 
 	def finish_part(self):
@@ -578,6 +583,10 @@ def reportlab_image_factory(base=ReportlabImageBase, **kwargs):
 		draw_command = part.pop('draw')
 		part_params = {}
 		transform_part_params(part_params, part, base)
+		if draw_command == 'all':
+			draw_command = [('+', 'all')]
+		elif draw_command == 'test':
+			draw_command = [('+', 'alignball')]
 		part_params['draw'] = draw_command
 		parts.append(part_params)
 
