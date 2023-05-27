@@ -1,3 +1,22 @@
+## 1.6.1 (2023-05-27)
+
+### Feat
+
+- Allow --hole commandline parameter
+- Implemented hole support
+- Implemented area to pixels conversion
+- Added area parsing
+
+### Fix
+
+- Fixed tests
+- Typo
+- Dont allow mixed units in area definition
+
+### Refactor
+
+- Canged Length to dataclass
+
 ## 1.6.0 (2022-10-23)
 
 ### Fix

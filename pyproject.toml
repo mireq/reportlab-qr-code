@@ -43,5 +43,5 @@ packages = ["reportlab_qr_code"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "1.6.0"
+version = "1.6.1"
 tag_format = "$version"
