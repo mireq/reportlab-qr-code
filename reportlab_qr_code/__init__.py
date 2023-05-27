@@ -40,6 +40,9 @@ LENGTH_ABSOLUTE = 0
 LENGTH_PIXELS = 1
 LENGTH_RELATIVE = 2
 
+PARAMS_GLOBAL = 0
+PARAMS_PART = 1
+
 
 @dataclass
 class Length(object):
@@ -460,21 +463,22 @@ def parse_color(params, color_name):
 	params[f'{color_name}_alpha'] = alpha
 
 
-def clean_params(params):
+def clean_params(params, clean_type=PARAMS_GLOBAL):
 	"""
 	Validate and clean parameters
 	"""
 
-	if params['version'] is not None:
-		try:
-			params['version'] = int(params['version'])
-		except ValueError:
-			raise ValueError("Version '%s' is not a number" % params['version'])
+	if clean_type == PARAMS_GLOBAL:
+		if params['version'] is not None:
+			try:
+				params['version'] = int(params['version'])
+			except ValueError:
+				raise ValueError("Version '%s' is not a number" % params['version'])
 
-	if params['error_correction'] in QR_ERROR_CORRECTIONS:
-		params['error_correction'] = QR_ERROR_CORRECTIONS[params['error_correction']]
-	else:
-		raise ValueError("Unknown error correction '%s', expected one of %s" % (params['error_correction'], ', '.join(QR_ERROR_CORRECTIONS.keys())))
+		if params['error_correction'] in QR_ERROR_CORRECTIONS:
+			params['error_correction'] = QR_ERROR_CORRECTIONS[params['error_correction']]
+		else:
+			raise ValueError("Unknown error correction '%s', expected one of %s" % (params['error_correction'], ', '.join(QR_ERROR_CORRECTIONS.keys())))
 	parse_color(params, 'fg')
 	parse_color(params, 'bg')
 
@@ -516,7 +520,7 @@ def parse_params_string(params):
 
 	clean_params(params)
 	for part in params['draw_parts']:
-		clean_params(params)
+		clean_params(part, PARAMS_PART)
 
 	text = text.encode('utf-8')
 	if fmt == 'base64':
