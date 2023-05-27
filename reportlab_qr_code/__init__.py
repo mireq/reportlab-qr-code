@@ -535,7 +535,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			return self.get_fragment_area('eyeball1') + self.get_fragment_area('eyeball2') + self.get_fragment_area('eyeball3')
 		elif area_name == 'align':
 			return [(x - 2, y - 2, 5, 5) for x, y in self.get_align_positions()]
-		elif area_name == 'alignpupil':
+		elif area_name == 'alignpupils':
 			return [(x, y, 1, 1) for x, y in self.get_align_positions()]
 		elif area_name == 'alignballs':
 			patterns = [[(x - 2, y - 2, 5, 1), (x - 2, y + 2, 5, 1), (x - 2, y - 1, 1, 3), (x + 2, y - 1, 1, 3)] for x, y in self.get_align_positions()]
