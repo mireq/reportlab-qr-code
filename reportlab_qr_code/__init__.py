@@ -424,6 +424,56 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			if prop in self.DRAW_STATE_PROPERTIES:
 				setattr(self, prop, value)
 
+		draw_mask = definition['draw']
+		draw_mask = [
+			('+', 'align'),
+		]
+		mask = None
+		for operation, area in draw_mask:
+			if mask is None:
+				base_value = 0 if operation == '+' else 1
+				mask = array.array('B', [base_value] * self.width * self.width)
+			if operation == '+':
+				def mask_action(x, y):
+					mask[x + y*self.width] = mask[x + y*self.width] or 1
+			else:
+				def mask_action(x, y):
+					mask[x + y*self.width] = 0
+			for area in self.get_fragment_area(area):
+				for x in range(area[0], area[0] + area[2]):
+					for y in range(area[1], area[1] + area[3]):
+						mask_action(x, y)
+		self.bitmap = array.array('B', [bit * mask for bit, mask in zip(self.bitmap, mask)])
+
+	def get_fragment_area(self, area_name):
+		if area_name == 'all':
+			return [(0, 0, self.width, self.width)]
+		elif area_name == 'eye1':
+			return [(0, 0, 7, 7)]
+		elif area_name == 'eye2':
+			return [(self.width - 7, 0, 7, 7)]
+		elif area_name == 'eye3':
+			return [(0, self.width - 7, 7, 7)]
+		elif area_name == 'eyepupil1':
+			return [(2, 2, 3, 3)]
+		elif area_name == 'eyepupil2':
+			return [(self.width - 5, 2, 3, 3)]
+		elif area_name == 'eyepupil3':
+			return [(2, self.width - 5, 3, 3)]
+		elif area_name == 'eyeball1':
+			return [(0, 0, 7, 1), (0, 6, 7, 1), (0, 1, 1, 5), (6, 1, 1, 5)]
+		elif area_name == 'eyeball2':
+			return [(self.width - 7, 0, 7, 1), (self.width - 7, 6, 7, 1), (self.width - 7, 1, 1, 5), (self.width - 1, 1, 1, 5)]
+		elif area_name == 'eyeball3':
+			return [(0, self.width - 7, 7, 1), (0, self.width - 1, 7, 1), (0, self.width - 6, 1, 5), (6, self.width - 6, 1, 5)]
+		elif area_name == 'eyes':
+			return self.get_fragment_area('eye1') + self.get_fragment_area('eye2') + self.get_fragment_area('eye3')
+		elif area_name == 'eyepupils':
+			return self.get_fragment_area('eyepupil1') + self.get_fragment_area('eyepupil2') + self.get_fragment_area('eyepupil3')
+		elif area_name == 'eyeballs':
+			return self.get_fragment_area('eyeball1') + self.get_fragment_area('eyeball2') + self.get_fragment_area('eyeball3')
+		raise ValueError(f"Unknown area {area_name}")
+
 	def finish_part(self):
 		# restore drawing state
 		state = self.draw_state_stack.pop()
