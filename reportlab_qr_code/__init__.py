@@ -94,6 +94,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		'padding': None,
 		'fg': None,
 		'bg': None,
+		'fg_alpha': Transforms.to_float,
+		'bg_alpha': Transforms.to_float,
 		'x': Transforms.to_length,
 		'y': Transforms.to_length,
 		'invert': Transforms.to_bool,
@@ -134,8 +136,6 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				self.padding = toLength(self.padding) if isinstance(self.padding, str) else float(self.padding)
 		if self.enhanced_path is None:
 			self.enhanced_path = self.radius == 0
-		self.parse_color('fg')
-		self.parse_color('bg')
 		self.hole = [self.convert_area_to_pixels(fragment) for fragment in self.hole]
 
 	def drawrect(self, row, col):
@@ -295,18 +295,6 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			segment = self.__consume_segment()
 		return segments
 
-	def parse_color(self, color_name):
-		color = getattr(self, color_name)
-		if color is None:
-			return
-		alpha = 1.0
-		if re.match(r'^#[0-9a-f]{8}$', color.lower()):
-			color = color.lower()
-			alpha = int(color[-2:], base=16) / 255
-			color = color[:7]
-		setattr(self, color_name, color)
-		setattr(self, f'{color_name}_alpha', alpha)
-
 	def convert_absolute_to_relative(self, coordinate):
 		if coordinate.kind == LENGTH_ABSOLUTE:
 			return Length(LENGTH_RELATIVE, (coordinate.value - self.padding) / (self.size - self.padding * 2))
@@ -459,6 +447,19 @@ def reportlab_image_factory(base=ReportlabImageBase, **kwargs):
 	return type('ReportlabImage', (base,), params)
 
 
+def parse_color(params, color_name):
+	color = params.get(color_name)
+	if color is None:
+		return
+	alpha = 1.0
+	if re.match(r'^#[0-9a-f]{8}$', color.lower()):
+		color = color.lower()
+		alpha = int(color[-2:], base=16) / 255
+		color = color[:7]
+	params[color_name] = color
+	params[f'{color_name}_alpha'] = alpha
+
+
 def clean_params(params):
 	"""
 	Validate and clean parameters
@@ -474,6 +475,8 @@ def clean_params(params):
 		params['error_correction'] = QR_ERROR_CORRECTIONS[params['error_correction']]
 	else:
 		raise ValueError("Unknown error correction '%s', expected one of %s" % (params['error_correction'], ', '.join(QR_ERROR_CORRECTIONS.keys())))
+	parse_color(params, 'fg')
+	parse_color(params, 'bg')
 
 
 def parse_params_string(params):
@@ -512,6 +515,8 @@ def parse_params_string(params):
 			raise ValueError("Wrong format of parameters '%s', expected key=value pairs delimited by ',' character" % parsed_params)
 
 	clean_params(params)
+	for part in params['draw_parts']:
+		clean_params(params)
 
 	text = text.encode('utf-8')
 	if fmt == 'base64':
