@@ -373,8 +373,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		y_px = max(self.convert_coordinate_to_pixels(y), 0)
 		x2 = Length(x.kind, x.value + w.value)
 		y2 = Length(y.kind, y.value + h.value)
-		w_px = max(min(self.convert_coordinate_to_pixels(x2) - x_px, self.width - x_px), 1)
-		h_px = max(min(self.convert_coordinate_to_pixels(y2) - y_px, self.width - y_px), 1)
+		w_px = max(min(self.convert_coordinate_to_pixels(x2, True) - x_px, self.width - x_px), 1)
+		h_px = max(min(self.convert_coordinate_to_pixels(y2, True) - y_px, self.width - y_px), 1)
 		return [x_px, y_px, w_px, h_px]
 
 	def clear_area(self):
