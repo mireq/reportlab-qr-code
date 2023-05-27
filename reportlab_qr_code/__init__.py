@@ -489,7 +489,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 					for y in range(area[1], area[1] + area[3]):
 						mask_action(x, y)
 		#self.bitmap = mask
-		self.bitmap = array.array('B', [bit * mask for bit, mask in zip(self.bitmap, mask)])
+		if mask is not None:
+			self.bitmap = array.array('B', [bit * mask for bit, mask in zip(self.bitmap, mask)])
 
 	def get_version(self):
 		return (self.width - 21) // 4 + 1
@@ -536,7 +537,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			return [(x - 2, y - 2, 5, 5) for x, y in self.get_align_positions()]
 		elif area_name == 'alignpupil':
 			return [(x, y, 1, 1) for x, y in self.get_align_positions()]
-		elif area_name == 'alignball':
+		elif area_name == 'alignballs':
 			patterns = [[(x - 2, y - 2, 5, 1), (x - 2, y + 2, 5, 1), (x - 2, y - 1, 1, 3), (x + 2, y - 1, 1, 3)] for x, y in self.get_align_positions()]
 			return list(itertools.chain(*patterns))
 		raise ValueError(f"Unknown area {area_name}")
@@ -583,11 +584,12 @@ def reportlab_image_factory(base=ReportlabImageBase, **kwargs):
 		draw_command = part.pop('draw')
 		part_params = {}
 		transform_part_params(part_params, part, base)
-		if draw_command == 'all':
-			draw_command = [('+', 'all')]
-		elif draw_command == 'test':
-			draw_command = [('+', 'alignball')]
-		part_params['draw'] = draw_command
+		draw_operations = []
+		draw_command = ['+'] + re.split(r'([+-])', draw_command)
+		for operator, element in zip(draw_command[::2], draw_command[1::2]):
+			if element:
+				draw_operations.append((operator, element))
+		part_params['draw'] = draw_operations
 		parts.append(part_params)
 
 	if parts:
