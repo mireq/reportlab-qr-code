@@ -119,6 +119,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 	enhanced_path = None
 	hole = []
 	radius = 0
+	draw_parts = None
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -417,11 +418,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		return [min(max((s - d) * 0.5, -radius), radius) for s, d in zip(src, dst)]
 
 
-def reportlab_image_factory(base=ReportlabImageBase, **kwargs):
-	"""
-	Returns ReportlabImage class for qrcode image_factory
-	"""
-	params = {}
+def transform_part_params(params, kwargs, base=ReportlabImageBase):
 	# Chceck each parameter
 	for key, value in kwargs.items():
 		# If is unknown, raise exception
@@ -433,6 +430,32 @@ def reportlab_image_factory(base=ReportlabImageBase, **kwargs):
 			params[key] = value if transform is None else transform(value)
 		except Exception as e:
 			raise ValueError("Wrong value '%s' for attribute %s: %s" % (value, key, e))
+
+
+def reportlab_image_factory(base=ReportlabImageBase, **kwargs):
+	"""
+	Returns ReportlabImage class for qrcode image_factory
+	"""
+
+	# specific part settings
+	draw_parts = kwargs.pop('draw_parts', [])
+
+	# transform common parameters
+	params = {}
+	transform_part_params(params, kwargs, base)
+
+	parts = []
+	# parse parameters specific for pparts
+	for part in draw_parts:
+		draw_command = part.pop('draw')
+		part_params = {}
+		transform_part_params(part_params, part, base)
+		part_params['draw'] = draw_command
+		parts.append(part_params)
+
+	if parts:
+		params['draw_parts'] = parts
+
 	return type('ReportlabImage', (base,), params)
 
 
@@ -471,9 +494,20 @@ def parse_params_string(params):
 		raise ValueError("Unknown format '%s', supprted are text or base64" % fmt)
 
 	params = DEFAULT_PARAMS.copy()
+
+	# allow draw specific parts with different settings
+	params['draw_parts'] = []
+	curreent_draw = params
+
 	if parsed_params:
 		try:
-			params.update(dict(item.split("=") for item in parsed_params.split(",")))
+			for item in parsed_params.split(','):
+				key, value = item.split('=', 1)
+				if key == 'draw':
+					curreent_draw = {'draw': value}
+					params['draw_parts'].append(curreent_draw)
+				else:
+					curreent_draw[key] = value
 		except ValueError:
 			raise ValueError("Wrong format of parameters '%s', expected key=value pairs delimited by ',' character" % parsed_params)
 
