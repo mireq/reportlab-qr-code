@@ -29,7 +29,8 @@ def generate(args):
 	params['invert'] = bool(args.invert)
 	params['negative'] = bool(args.negative)
 	params['radius'] = args.radius
-	params['hole'] = args.hole or []
+	if args.hole:
+		params['hole'] = args.hole
 	if args.enhanced_path is not None:
 		params['enhanced_path'] = args.enhanced_path
 	if args.gradient:
