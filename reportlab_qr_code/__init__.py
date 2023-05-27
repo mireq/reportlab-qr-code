@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import array
+import math
 import operator
 import re
-import math
 from base64 import b64decode
+from copy import deepcopy
 from dataclasses import dataclass
 
 import qrcode
@@ -108,6 +109,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		'enhanced_path': Transforms.to_bool,
 		'hole': Transforms.to_area,
 	}
+	DRAW_STATE_PROPERTIES = ['bitmap', 'fg', 'fg_alpha', 'enhanced_path', 'hole', 'radius']
 
 	size = toLength('5cm')
 	padding = '2.5'
@@ -122,9 +124,10 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 	negative = False
 	mask = False
 	enhanced_path = None
-	hole = []
 	radius = 0
+	hole = []
 	draw_parts = None
+	draw_state_stack = []
 
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
@@ -140,6 +143,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		if self.enhanced_path is None:
 			self.enhanced_path = self.radius == 0
 		self.hole = [self.convert_area_to_pixels(fragment) for fragment in self.hole]
+		if not self.draw_parts:
+			self.draw_parts = [{'draw': [('+', 'all')]}]
 
 	def drawrect(self, row, col):
 		self.bitmap_set((col, row), 0 if self.invert else 1)
@@ -175,30 +180,37 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 
 			if not self.mask:
 				self.draw_background(stream)
-				# Set foreground
-				stream.setFillColor(self.fg)
-				stream.setFillAlpha(self.fg_alpha)
 
 			# Set transform matrix
 			scale = (self.size - (self.padding * 2.0)) / self.width
 			transform(scale, 0.0, 0.0, scale, self.padding, self.padding)
 
-			p = stream.beginPath()
-			if self.negative:
-				pad = self.padding / scale
-				p.moveTo(-pad, -pad)
-				p.lineTo(self.width + pad, -pad)
-				p.lineTo(self.width + pad, self.width + pad)
-				p.lineTo(-pad, self.width + pad)
-				p.close()
-			if self.radius == 0:
-				p = self.draw_code(p)
-			else:
-				p = self.draw_rounded_code(p)
-			if self.mask:
-				stream.clipPath(p, stroke=0, fill=1, fillMode=FILL_EVEN_ODD)
-			else:
-				stream.drawPath(p, stroke=0, fill=1, fillMode=FILL_EVEN_ODD)
+			for part in self.draw_parts:
+				self.begin_part(part)
+
+				if not self.mask:
+					# Set foreground
+					stream.setFillColor(self.fg)
+					stream.setFillAlpha(self.fg_alpha)
+
+				p = stream.beginPath()
+				if self.negative:
+					pad = self.padding / scale
+					p.moveTo(-pad, -pad)
+					p.lineTo(self.width + pad, -pad)
+					p.lineTo(self.width + pad, self.width + pad)
+					p.lineTo(-pad, self.width + pad)
+					p.close()
+				if self.radius == 0:
+					p = self.draw_code(p)
+				else:
+					p = self.draw_rounded_code(p)
+				if self.mask:
+					stream.clipPath(p, stroke=0, fill=1, fillMode=FILL_EVEN_ODD)
+				else:
+					stream.drawPath(p, stroke=0, fill=1, fillMode=FILL_EVEN_ODD)
+
+				self.finish_part()
 		finally:
 			if self.mask:
 				restore_transform()
@@ -404,6 +416,19 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 					self.bitmap_invert((col, row))
 
 		return path
+
+	def begin_part(self, definition):
+		# save drawing state and mask bitmap
+		self.draw_state_stack.append({prop: deepcopy(getattr(self, prop)) for prop in self.DRAW_STATE_PROPERTIES})
+		for prop, value in definition.items():
+			if prop in self.DRAW_STATE_PROPERTIES:
+				setattr(self, prop, value)
+
+	def finish_part(self):
+		# restore drawing state
+		state = self.draw_state_stack.pop()
+		for prop, value in state.items():
+			setattr(self, prop, value)
 
 	def __calc_round_direction(self, src, dst, radius):
 		return [min(max((s - d) * 0.5, -radius), radius) for s, d in zip(src, dst)]
