@@ -175,9 +175,11 @@ draw call.
 	arg_list = []
 	arg_lists = [arg_list]
 	for arg in sys.argv[1:]:
-		if arg == '--draw':
+		if arg == '--draw' or arg.startswith('--draw='):
 			arg_list = ['--draw']
 			arg_lists.append(arg_list)
+			if arg.startswith('--draw='):
+				arg_list.append(arg[7:])
 		else:
 			arg_list.append(arg)
 
