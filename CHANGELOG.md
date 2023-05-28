@@ -1,3 +1,32 @@
+## 1.7.0 (2023-05-28)
+
+### Feat
+
+- Small optimalization - don't do masking if we need draw all
+- Allow draw command with = sign
+- Implemented partial draw for command line
+- Allow hightight align patterns
+- Added alignment pattern calculation
+- Added QR parts masking support
+- Added drawing stack
+- Parsing draw parts
+
+### Fix
+
+- Correctly combine graadients in commandline mode
+- Replaced fixed drawing fragment
+- Correct hole position
+- Don't throw exception without hole parameter
+- Consistent area naming
+- Partial draw fixes
+- Don't parse global and part params exactly same
+
+### Refactor
+
+- Reorganized conditions
+- Removing old commented code
+- Moved color parsing
+
 ## 1.6.1 (2023-05-27)
 
 ### Feat
