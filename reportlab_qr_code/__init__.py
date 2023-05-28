@@ -475,6 +475,8 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		draw_mask = definition['draw']
 		mask = None
 		for operation, area in draw_mask:
+			if operation == '+' and area == 'all': # implicit operation, not needed
+				continue
 			if mask is None:
 				base_value = 0 if operation == '+' else 1
 				mask = array.array('B', [base_value] * self.width * self.width)
