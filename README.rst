@@ -210,9 +210,9 @@ Parameter list
 	* - ``draw``
 	  - +all
 	  - select elements to draw. Prefix + (plus) means include, - (minus)
-	    exclude. Allowed options are: 'all', 'eye[1-3]', 'eyes', 'eyepupil[1-3]',
-	    'eyepupils', 'eyeball[1-3]', 'eyeballs', 'align', 'alignpupils',
-	    'alignballs'
+	    exclude. Allowed options are: `'all'`, `'eye[1-3]'`, `'eyes'`,
+	    `'eyepupil[1-3]'`, `'eyepupils'`, `'eyeball[1-3]'`, `'eyeballs'`,
+	    `'align'`, `'alignpupils'` and `'alignballs'`
 
 Examples
 --------
