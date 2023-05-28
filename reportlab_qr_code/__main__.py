@@ -31,7 +31,7 @@ def generate(text, c, **args):
 	if args['gradient']:
 		params['mask'] = True
 	if args['draw'] is not None:
-		params['draw_parts'] = [{'draw': 'eyes'}]
+		params['draw_parts'] = [{'draw': args['draw']}]
 	clean_params(params)
 
 	if isinstance(text, str):
