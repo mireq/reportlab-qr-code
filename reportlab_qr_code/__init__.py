@@ -7,10 +7,11 @@ import re
 from base64 import b64decode
 from copy import deepcopy
 from dataclasses import dataclass
+from typing import List, Union, Tuple
 
 import qrcode
 from reportlab.lib.units import toLength
-from reportlab.pdfgen.canvas import FILL_EVEN_ODD
+from reportlab.pdfgen.canvas import FILL_EVEN_ODD, Canvas
 
 
 DEFAULT_PARAMS = {
@@ -104,19 +105,22 @@ class Vector(tuple):
 
 class Transforms:
 	@staticmethod
-	def to_length(val):
+	def to_length(val: Union[str, int, float]) -> float:
 		return toLength(val) if isinstance(val, str) else float(val)
 
 	@staticmethod
-	def to_bool(val):
+	def to_bool(val: Union[str, bool]) -> bool:
 		return val not in FALSE_VALUES
 
 	@staticmethod
-	def to_float(val):
+	def to_float(val: Union[str, float]) ->float:
 		return float(val)
 
 	@staticmethod
-	def to_area(val):
+	def to_area(val: str) -> List[Tuple[Length, Length, Length, Length]]:
+		"""
+		Area string in form x:y:w:h:… to list of areas
+		"""
 		parts = val.split(':')
 		if len(parts) % 4 != 0:
 			raise ValueError(f"Wrong value `{val}`, expected coordinates: x:y:w:h")
@@ -129,7 +133,7 @@ class Transforms:
 					coordinates.append(Length(LENGTH_PIXELS, int(coordinate)))
 				except ValueError:
 					coordinates.append(Length(LENGTH_ABSOLUTE, Transforms.to_length(coordinate)))
-		coordinates = [coordinates[i:i + 4] for i in range(0, len(coordinates), 4)]
+		coordinates = [tuple(coordinates[i:i + 4]) for i in range(0, len(coordinates), 4)]
 		for area in coordinates:
 			if not all(coordinate.kind == area[0].kind for coordinate in area):
 				raise ValueError(f"Mixed units in `{val}`")
@@ -190,10 +194,10 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		if not self.draw_parts:
 			self.draw_parts = [{'draw': [('+', 'all')]}]
 
-	def drawrect(self, row, col):
+	def drawrect(self, row: int, col: int):
 		self.bitmap_set((col, row), 0 if self.invert else 1)
 
-	def save(self, stream, kind=None):
+	def save(self, stream: Canvas):
 		if not self.mask:
 			stream.saveState()
 
@@ -262,7 +266,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			else:
 				stream.restoreState()
 
-	def draw_background(self, stream):
+	def draw_background(self, stream: Canvas):
 		"""
 		Draw rectangle on background if is not transparent
 		"""
@@ -271,18 +275,18 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			stream.setFillAlpha(self.bg_alpha)
 			stream.rect(0, 0, self.size, self.size, fill=1, stroke=0)
 
-	def draw_code(self, p):
+	def draw_code(self, path):
 		"""
 		Draw QR code
 		"""
 		for segment in self.get_segments():
-			p.moveTo(segment[0][0], segment[0][1])
+			path.moveTo(segment[0][0], segment[0][1])
 			for coords in segment[1:-1]:
-				p.lineTo(coords[0], coords[1])
-			p.close()
-		return p
+				path.lineTo(coords[0], coords[1])
+			path.close()
+		return path
 
-	def draw_rounded_code(self, p):
+	def draw_rounded_code(self, path):
 		"""
 		Draw QR code using rounded paths
 		"""
@@ -295,19 +299,19 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				prev_dir = self.__calc_round_direction(prev_coords, coords, self.radius)
 				next_dir = self.__calc_round_direction(next_coords, coords, self.radius)
 				if i == 0:
-					p.moveTo(coords[0] + prev_dir[0], coords[1] + prev_dir[1])
+					path.moveTo(coords[0] + prev_dir[0], coords[1] + prev_dir[1])
 				else:
-					p.lineTo(coords[0] + prev_dir[0], coords[1] + prev_dir[1])
+					path.lineTo(coords[0] + prev_dir[0], coords[1] + prev_dir[1])
 				c = 0.45 # 1 - (4/3)*tan(pi/8)
-				p.curveTo(
+				path.curveTo(
 					coords[0] + prev_dir[0] * c, coords[1] + prev_dir[1] * c,
 					coords[0] + next_dir[0] * c, coords[1] + next_dir[1] * c,
 					coords[0] + next_dir[0], coords[1] + next_dir[1],
 				)
-			p.close()
-		return p
+			path.close()
+		return path
 
-	def addr(self, coords):
+	def addr(self, coords: Tuple[int, int]) -> int:
 		"""
 		Get index to bitmap
 		"""
@@ -316,20 +320,20 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			return None
 		return row * self.width + col
 
-	def coord(self, addr):
+	def coord(self, addr: int) -> Tuple[int, int]:
 		"""
 		Returns bitmap coordinates from address
 		"""
 		return Vector((addr % self.width, addr // self.width))
 
-	def bitmap_get(self, coords):
+	def bitmap_get(self, coords: Tuple[int, int]) -> int:
 		"""
 		Returns pixel value of bitmap
 		"""
 		addr = self.addr(coords)
 		return 0 if addr is None else self.bitmap[addr]
 
-	def bitmap_set(self, coords, value):
+	def bitmap_set(self, coords: Tuple[int, int], value: int):
 		"""
 		Set pixel value of bitmap
 		"""
@@ -343,7 +347,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		addr = self.addr(coords)
 		self.bitmap[addr] = 0 if self.bitmap[addr] else 1
 
-	def get_segments(self):
+	def get_segments(self) -> List[List[Tuple[int, int]]]:
 		"""
 		Return list of segments (vector shapes)
 		"""
@@ -354,19 +358,19 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			segment = self.__consume_segment()
 		return segments
 
-	def convert_absolute_to_relative(self, coordinate):
+	def convert_absolute_to_relative(self, coordinate: Length) -> Length:
 		if coordinate.kind == LENGTH_ABSOLUTE:
 			return Length(LENGTH_RELATIVE, (coordinate.value - self.padding) / (self.size - self.padding * 2))
 		return coordinate
 
-	def convert_coordinate_to_pixels(self, coordinate, round_up=False):
+	def convert_coordinate_to_pixels(self, coordinate: Length, round_up: bool = False) -> int:
 		if coordinate.kind == LENGTH_PIXELS:
 			return coordinate.value
 		else:
 			value = coordinate.value * self.width
 			return math.ceil(value) if round_up else math.floor(value)
 
-	def convert_area_to_pixels(self, area):
+	def convert_area_to_pixels(self, area: Tuple[Length, Length, Length, Length]) -> Tuple[int, int, int,  int]:
 		area = [self.convert_absolute_to_relative(coordinate) for coordinate in area]
 		x, y, w, h = area
 		x_px = max(self.convert_coordinate_to_pixels(x), 0)
@@ -375,7 +379,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 		y2 = Length(y.kind, y.value + h.value)
 		w_px = max(min(self.convert_coordinate_to_pixels(x2, True) - x_px, self.width - x_px), 1)
 		h_px = max(min(self.convert_coordinate_to_pixels(y2, True) - y_px, self.width - y_px), 1)
-		return [x_px, y_px, w_px, h_px]
+		return (x_px, y_px, w_px, h_px)
 
 	def clear_area(self):
 		for hole in self.hole:
@@ -383,7 +387,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				for y in range(hole[1], hole[1] + hole[3]):
 					self.bitmap_set((x, y), 0)
 
-	def __consume_segment(self):
+	def __consume_segment(self) -> List[Tuple[int, int]]:
 		"""
 		Returns segment of qr image as path (pairs of x, y coordinates)
 		"""
@@ -461,7 +465,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 
 		return path
 
-	def begin_part(self, definition):
+	def begin_part(self, definition: dict):
 		# save drawing state and mask bitmap
 		self.draw_state_stack.append({prop: deepcopy(getattr(self, prop)) for prop in self.DRAW_STATE_PROPERTIES})
 		for prop, value in definition.items():
@@ -484,14 +488,13 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				for x in range(area[0], area[0] + area[2]):
 					for y in range(area[1], area[1] + area[3]):
 						mask_action(x, y)
-		#self.bitmap = mask
 		if mask is not None:
 			self.bitmap = array.array('B', [bit * mask for bit, mask in zip(self.bitmap, mask)])
 
-	def get_version(self):
+	def get_version(self) -> int:
 		return (self.width - 21) // 4 + 1
 
-	def get_align_positions(self):
+	def get_align_positions(self) -> List[Tuple[int, int]]:
 		positions = []
 		version = self.get_version()
 		for x in ALIGN_POSITION_TABLE[version - 1]:
@@ -502,7 +505,7 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				positions.append((x, y))
 		return positions
 
-	def get_fragment_area(self, area_name):
+	def get_fragment_area(self, area_name: str) -> List[Tuple[int, int, int, int]]:
 		if area_name == 'all':
 			return [(0, 0, self.width, self.width)]
 		elif area_name == 'eye1':
@@ -676,7 +679,7 @@ def parse_params_string(params):
 	return params, text
 
 
-def build_qrcode(params, text):
+def build_qrcode(params: dict, text: str) -> ReportlabImageBase:
 	factory_kwargs = {key: value for key, value in params.items() if key not in QR_PARAMS}
 	qr_kwargs = {key: value for key, value in params.items() if key in QR_PARAMS}
 	qr = qrcode.QRCode(image_factory=reportlab_image_factory(**factory_kwargs), border=0, **qr_kwargs)
