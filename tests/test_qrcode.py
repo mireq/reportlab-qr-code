@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import array
 import math
+from copy import deepcopy
 
 import pytest
 from reportlab.lib.units import toLength
 from reportlab.pdfgen import canvas
 
-from reportlab_qr_code import qr, qr_draw, reportlab_image_factory, build_qrcode, parse_params_string
+from reportlab_qr_code import qr, qr_draw, reportlab_image_factory, build_qrcode, parse_params_string, ReportlabImageBase
 
 
 def get_canvas():
@@ -164,7 +165,7 @@ def test_mixed_units():
 def test_area():
 	qr(get_canvas(), 'hole=0cm:0cm:5cm:5cm,size=5cm;text;Area')
 	img = build_qrcode(*parse_params_string('hole=0cm:0cm:5cm:5cm,size=5cm;text;Area'))
-	assert img.hole == [[0, 0, img.width, img.width]]
+	assert img.hole == [(0, 0, img.width, img.width)]
 	qr(get_canvas(), 'hole=1cm:2cm:3cm:1cm,size=5cm;text;Area')
 	img = build_qrcode(*parse_params_string('hole=1cm:2cm:3cm:1cm,size=5cm;text;Area'))
 	assert img.hole[0][0] == pytest.approx(img.width / 5 * 1, 1)
@@ -185,12 +186,42 @@ def test_area():
 	assert img.hole[0][3] == pytest.approx(4, 1)
 
 
+def get_draw_part_state(img, index=0) -> ReportlabImageBase:
+	img = deepcopy(img)
+	img.begin_part(img.draw_parts[index])
+	return img
+
+
 def test_draw_all():
 	original_bitmap = build_qrcode(*parse_params_string(';text;All')).bitmap
-	all_image = build_qrcode(*parse_params_string('draw=all;text;All'))
-	all_image.begin_part(all_image.draw_parts[0])
+	all_image = get_draw_part_state(build_qrcode(*parse_params_string('draw=all;text;All')))
 	assert original_bitmap == all_image.bitmap
 
+
+def test_draw_eye():
+	original_bitmap = build_qrcode(*parse_params_string(';text;All')).bitmap
+	eye = get_draw_part_state(build_qrcode(*parse_params_string('draw=eyepupil1;text;All')))
+	assert original_bitmap != eye.bitmap
+	assert sum(eye.bitmap) == 9
+
+
+def test_combined_eye():
+	eyeball = get_draw_part_state(build_qrcode(*parse_params_string('draw=eyeball1;text;T')))
+	eyepupil = get_draw_part_state(build_qrcode(*parse_params_string('draw=eyepupil1;text;T')))
+	eye = get_draw_part_state(build_qrcode(*parse_params_string('draw=eye1;text;T')))
+	assert sum(eyeball.bitmap) == 24
+	assert sum(eyepupil.bitmap) == 9
+	assert sum(eye.bitmap) == 9 + 24
+
+	eyeball_combined = get_draw_part_state(build_qrcode(*parse_params_string('draw=eye1-eyepupil1;text;T')))
+	eyepupil_combined = get_draw_part_state(build_qrcode(*parse_params_string('draw=eye1-eyeball1;text;T')))
+	assert eyeball.bitmap == eyeball_combined.bitmap
+	assert eyepupil.bitmap == eyepupil_combined.bitmap
+
+	# alternative form using combined shapes
+	eyeball_combined = get_draw_part_state(build_qrcode(*parse_params_string('draw=eye1-eyepupils;text;T')))
+	eyepupil_combined = get_draw_part_state(build_qrcode(*parse_params_string('draw=eye1-eyeballs;text;T')))
+	
 
 def draw_image(bitmap):
 	width = int(math.sqrt(len(bitmap)))
