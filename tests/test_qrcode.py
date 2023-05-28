@@ -187,8 +187,9 @@ def test_area():
 
 def test_draw_all():
 	original_bitmap = build_qrcode(*parse_params_string(';text;All')).bitmap
-	all_bitmap = build_qrcode(*parse_params_string('draw=all;text;All')).bitmap
-	assert original_bitmap == all_bitmap
+	all_image = build_qrcode(*parse_params_string('draw=all;text;All'))
+	all_image.begin_part(all_image.draw_parts[0])
+	assert original_bitmap == all_image.bitmap
 
 
 def draw_image(bitmap):
