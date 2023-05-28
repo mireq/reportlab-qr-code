@@ -469,10 +469,6 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 				setattr(self, prop, value)
 
 		draw_mask = definition['draw']
-		#draw_mask = [
-		#	#('+', 'all'),
-		#	('+', 'align'),
-		#]
 		mask = None
 		for operation, area in draw_mask:
 			if mask is None:
