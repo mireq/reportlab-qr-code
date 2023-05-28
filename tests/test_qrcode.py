@@ -221,7 +221,16 @@ def test_combined_eye():
 	# alternative form using combined shapes
 	eyeball_combined = get_draw_part_state(build_qrcode(*parse_params_string('draw=eye1-eyepupils;text;T')))
 	eyepupil_combined = get_draw_part_state(build_qrcode(*parse_params_string('draw=eye1-eyeballs;text;T')))
-	
+
+
+def test_dont_allow_override_global_options_in_part():
+	img = build_qrcode(*parse_params_string('radius=0,padding=0,draw=eye1,radius=1,padding=1;text;T'))
+	eye = get_draw_part_state(img)
+	assert img.radius == 0
+	assert img.padding == 0
+	assert eye.radius == 1
+	assert img.padding == 0 # don't allow change padding
+
 
 def draw_image(bitmap):
 	width = int(math.sqrt(len(bitmap)))
