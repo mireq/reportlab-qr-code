@@ -270,6 +270,14 @@ def test_segments():
 	assert eyepupils_sum.bitmap == eyepupils.bitmap
 	assert eyes_sum.bitmap == eyes.bitmap
 
+	alignballs = get_draw_part_state(build_qrcode(*parse_params_string(f'version=2,draw=alignballs;text;T')))
+	alignpupils = get_draw_part_state(build_qrcode(*parse_params_string(f'version=2,draw=alignpupils;text;T')))
+	align = get_draw_part_state(build_qrcode(*parse_params_string(f'version=2,draw=align;text;T')))
+
+	assert sum(alignpupils.bitmap) == 1 # single align
+	assert sum(alignballs.bitmap) == 16
+	assert sum(align.bitmap) == 17
+
 
 def draw_image(bitmap):
 	width = int(math.sqrt(len(bitmap)))
