@@ -227,7 +227,6 @@ RML document example:
 
 .. code:: xml
 
-
 	<!DOCTYPE document SYSTEM "rml_1_0.dtd" [
 	<!ENTITY lines5 "
 		0cm 0cm 0cm 0.5cm
@@ -251,18 +250,11 @@ RML document example:
 	">
 	]>
 	<document filename="test.pdf" invariant="1" compression="1">
-	<!--
-	<template pagesize="a4">
-		<pageTemplate id="main" pagesize="a4 portrait">
-			<frame id="main" x1="1cm" y1="1cm" width="19cm" height="27.7cm"/>
-		</pageTemplate>
-	</template>
-	-->
 	<template>
-		<pageTemplate id="main" pagesize="17cm,32cm">
-			<frame id="main" x1="0.5cm" y1="0.0cm" width="5cm" height="32cm"/>
-			<frame id="main" x1="6cm" y1="0.0cm" width="5cm" height="32cm"/>
-			<frame id="main" x1="11.5cm" y1="0.0cm" width="5cm" height="32cm"/>
+		<pageTemplate id="main" pagesize="17cm,39cm">
+			<frame id="main" x1="0.5cm" y1="0.0cm" width="5cm" height="39cm"/>
+			<frame id="main" x1="6cm" y1="0.0cm" width="5cm" height="39cm"/>
+			<frame id="main" x1="11.5cm" y1="0.0cm" width="5cm" height="39cm"/>
 		</pageTemplate>
 	</template>
 	<stylesheet>
@@ -372,7 +364,6 @@ RML document example:
 			<lineMode width="0.5" /><lines>&lines5;</lines>
 		</illustration>
 	
-		<!--
 		<condPageBreak height="7cm"/>
 	
 		<para>Inverted</para>
@@ -392,8 +383,25 @@ RML document example:
 			<plugInGraphic module="reportlab_qr_code" function="qr">mask=1,radius=0.5,enhanced_path=1;text;Mask</plugInGraphic>
 			<plugInGraphic baseDir="." module="utils" function="gradient" />
 		</illustration>
-		-->
 	
+		<condPageBreak height="7cm"/>
+	
+		<para style="Normal">Hole</para>
+		<illustration height="5cm" width="5cm" align="center">
+			<plugInGraphic module="reportlab_qr_code" function="qr">hole=20%:40%:60%:20%,error_correction=H,radius=0.3,enhanced_path=1;text;Hole inside QR code</plugInGraphic>
+			<setFont name="Helvetica" size="18"/>
+			<drawString x="1.8cm" y="2.35cm">Logo</drawString>
+			<lineMode width="0.5" /><lines>&lines5;</lines>
+		</illustration>
+	
+		<condPageBreak height="7cm"/>
+	
+		<para style="Normal">Logo</para>
+		<illustration height="5cm" width="5cm" align="center">
+			<plugInGraphic module="reportlab_qr_code" function="qr">padding=2,radius=0.5,hole=35%:35%:30%:30%,fg=#554488,error_correction=H,draw=all-align-eyes,draw=alignpupils,radius=0.25,draw=alignballs,fg=#e24329,radius=1,draw=eyeball2+eyeball3,radius=3.5,fg=#fca326,draw=eyeball1,radius=3.5,fg=#e24329,draw=eyepupils,fg=#44366d,radius=3.5;text;https://about.gitlab.com/</plugInGraphic>
+			<lineMode width="0.5" /><lines>&lines5;</lines>
+			<image file="gitlab.svg" x="1.8cm" y="1.8cm" width="1.4cm" height="1.4cm"/>
+		</illustration>
 	</story>
 	</document>
 
