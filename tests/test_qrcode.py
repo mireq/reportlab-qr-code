@@ -185,6 +185,12 @@ def test_area():
 	assert img.hole[0][3] == pytest.approx(4, 1)
 
 
+def test_draw_all():
+	original_bitmap = build_qrcode(*parse_params_string(';text;All')).bitmap
+	all_bitmap = build_qrcode(*parse_params_string('draw=all;text;All')).bitmap
+	assert original_bitmap == all_bitmap
+
+
 def draw_image(bitmap):
 	width = int(math.sqrt(len(bitmap)))
 	img = reportlab_image_factory()(border=0, width=width, box_size=1, qrcode_modules=[])
