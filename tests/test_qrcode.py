@@ -236,6 +236,36 @@ def test_dont_allow_override_global_options_in_part():
 	assert img.padding == 0 # don't allow change padding
 
 
+def test_segments():
+	eyeball1 = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eyeball1;text;T')))
+	eyepupil1 = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eyepupil1;text;T')))
+	eye1 = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eye1;text;T')))
+	for i in range(2, 4):
+		eyeball = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eyeball{i};text;T')))
+		eyepupil = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eyepupil{i};text;T')))
+		eye = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eye{i};text;T')))
+		assert sum(eyeball.bitmap) == 24
+		assert sum(eyepupil.bitmap) == 9
+		assert sum(eye.bitmap) == 9 + 24
+		assert eyeball.bitmap != eyeball1.bitmap
+		assert eyepupil.bitmap != eyepupil1.bitmap
+		assert eye.bitmap != eye1.bitmap
+
+	eyeballs_sum = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eyeball1+eyeball2+eyeball3;text;T')))
+	eyepupils_sum = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eyepupil1+eyepupil2+eyepupil3;text;T')))
+	eyes_sum = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eye1+eye2+eye3;text;T')))
+	assert sum(eyeballs_sum.bitmap) == 24 * 3
+	assert sum(eyepupils_sum.bitmap) == 9 * 3
+	assert sum(eyes_sum.bitmap) == (9 + 24) * 3
+
+	eyeballs = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eyeballs;text;T')))
+	eyepupils = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eyepupils;text;T')))
+	eyes = get_draw_part_state(build_qrcode(*parse_params_string(f'draw=eyes;text;T')))
+	assert eyeballs_sum.bitmap == eyeballs.bitmap
+	assert eyepupils_sum.bitmap == eyepupils.bitmap
+	assert eyes_sum.bitmap == eyes.bitmap
+
+
 def draw_image(bitmap):
 	width = int(math.sqrt(len(bitmap)))
 	img = reportlab_image_factory()(border=0, width=width, box_size=1, qrcode_modules=[])
