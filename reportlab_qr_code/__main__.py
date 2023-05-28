@@ -39,6 +39,7 @@ def generate(text, c, **args):
 	qr = build_qrcode(params, text)
 
 	c.setPageSize((qr.size, qr.size))
+	c.saveState()
 	qr.save(c)
 
 	if args['gradient']:
@@ -59,6 +60,7 @@ def generate(text, c, **args):
 					coords[2] * qr.size,
 				]
 				c.radialGradient(*coords, colors=colors, positions=positions)
+	c.restoreState()
 
 
 def parse_gradient(val):
