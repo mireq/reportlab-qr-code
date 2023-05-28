@@ -11,6 +11,11 @@ Install
 
 	pip install reportlab_qr_code_generator
 
+Example output
+-------
+
+.. image:: https://raw.github.com/wiki/mireq/reportlab-qr-code/custom_style.png?v2023-05-28
+
 Why is this better than x?
 --------------------------
 
@@ -118,7 +123,7 @@ Arguments:
 --no-enhanced-path    Disable path enhancement
 --gradient            Either ``"linear x1 y1 x2 y2 colors"`` or ``"radial x y radius colors"`` Dimensions are in range (0, 1), position (0, 0) is top left corner, (1, 1) is bottom right corner. Colors is list ``"[position] color"`` e.g. ``"0.0 #ffffff 1.0 #000000"``. Position is optional. Without position argument, distances are calculated automatically. Example: ``--gradient "linear 0.0 0.0 0.1 1.0 0.5 \#1050c0 0.3 \#1050c0 0.7 \#e0e000"``
 --hole                Coordinates in form ``x:y:w:h``. Allowed are absolute length units, relative units (%) and pixels (without unit suffix).
---draw                Select area to draw. Possuble values are: ``'all'``, ``'eye[1-3]'``, ``'eyes'``, ``'eyepupil[1-3]'``, ``'eyepupils'``, ``'eyeball[1-3]'``, ``'eyeballs'``, ``'align'``, ``'alignpupils'``, ``'alignballs'``. It's possible to combine operations with +/- symbol e.g. all-eyes-align. To show only eye1 and eye3 without pupil it``'s possible to write something like eye1+eye3-eyepupil3. Arguments passed before first draw are globally set. Arguments after draw are specific for preceding draw call.
+--draw                Select area to draw. Possuble values are: ``'all'``, ``'eye[1-3]'``, ``'eyes'``, ``'eyepupil[1-3]'``, ``'eyepupils'``, ``'eyeball[1-3]'``, ``'eyeballs'``, ``'align'``, ``'alignpupils'``, ``'alignballs'``. It's possible to combine operations with +/- symbol e.g. all-eyes-align. To show only eye1 and eye3 without pupil it's possible to write something like ``eye1+eye3-eyepupil3``. Arguments passed before first draw are globally set. Arguments after draw are specific for preceding draw call.
 
 Some crazy examples:
 
@@ -417,7 +422,7 @@ RML document example:
 
 Output:
 
-.. image:: https://raw.github.com/wiki/mireq/reportlab-qr-code/codes.png?v2022-10-08
+.. image:: https://raw.github.com/wiki/mireq/reportlab-qr-code/codes.png?v2023-05-28
 
 
 .. |codecov| image:: https://codecov.io/gh/mireq/reportlab-qr-code/branch/master/graph/badge.svg?token=QGY5B5X0F3
