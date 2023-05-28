@@ -12,7 +12,7 @@ Install
 	pip install reportlab_qr_code_generator
 
 Example output
--------
+--------------
 
 .. image:: https://raw.github.com/wiki/mireq/reportlab-qr-code/custom_style.png?v2023-05-28
 
