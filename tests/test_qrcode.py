@@ -195,7 +195,9 @@ def get_draw_part_state(img, index=0) -> ReportlabImageBase:
 def test_draw_all():
 	original_bitmap = build_qrcode(*parse_params_string(';text;All')).bitmap
 	all_image = get_draw_part_state(build_qrcode(*parse_params_string('draw=all;text;All')))
+	all_image_with_operator = get_draw_part_state(build_qrcode(*parse_params_string('draw=+all;text;All')))
 	assert original_bitmap == all_image.bitmap
+	assert original_bitmap == all_image_with_operator.bitmap
 
 
 def test_draw_eye():
