@@ -192,6 +192,11 @@ def get_draw_part_state(img, index=0) -> ReportlabImageBase:
 	return img
 
 
+def test_unknown_area():
+	with pytest.raises(ValueError, match=r"Unknown area .*"):
+		get_draw_part_state(build_qrcode(*parse_params_string('draw=notexist;text;All')))
+
+
 def test_draw_all():
 	original_bitmap = build_qrcode(*parse_params_string(';text;All')).bitmap
 	all_image = get_draw_part_state(build_qrcode(*parse_params_string('draw=all;text;All')))
