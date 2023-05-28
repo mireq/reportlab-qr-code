@@ -524,14 +524,14 @@ class ReportlabImageBase(qrcode.image.base.BaseImage):
 			return [(self.width - 5, 2, 3, 3)]
 		elif area_name == 'eyepupil3':
 			return [(2, self.width - 5, 3, 3)]
+		elif area_name == 'eyepupils':
+			return self.get_fragment_area('eyepupil1') + self.get_fragment_area('eyepupil2') + self.get_fragment_area('eyepupil3')
 		elif area_name == 'eyeball1':
 			return [(0, 0, 7, 1), (0, 6, 7, 1), (0, 1, 1, 5), (6, 1, 1, 5)]
 		elif area_name == 'eyeball2':
 			return [(self.width - 7, 0, 7, 1), (self.width - 7, 6, 7, 1), (self.width - 7, 1, 1, 5), (self.width - 1, 1, 1, 5)]
 		elif area_name == 'eyeball3':
 			return [(0, self.width - 7, 7, 1), (0, self.width - 1, 7, 1), (0, self.width - 6, 1, 5), (6, self.width - 6, 1, 5)]
-		elif area_name == 'eyepupils':
-			return self.get_fragment_area('eyepupil1') + self.get_fragment_area('eyepupil2') + self.get_fragment_area('eyepupil3')
 		elif area_name == 'eyeballs':
 			return self.get_fragment_area('eyeball1') + self.get_fragment_area('eyeball2') + self.get_fragment_area('eyeball3')
 		elif area_name == 'align':
