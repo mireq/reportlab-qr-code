@@ -4,7 +4,7 @@ import sys
 from base64 import b64decode
 from copy import deepcopy
 
-from reportlab.graphics import renderPM
+from reportlab.graphics import renderPM, renderPS, renderSVG
 from reportlab.graphics.shapes import Drawing, Path
 from reportlab.graphics.transform import transformPoint
 from reportlab.lib.colors import toColor
@@ -19,15 +19,15 @@ class PathAdapter(Path):
 
 
 class CanvasAdapter:
-	def __init__(self, output):
+	def __init__(self, output, file_format):
 		self.output = output
+		self.file_format = file_format
 		self.drawing = Drawing()
 		self.fill_color = (0, 0, 0)
 		self.fill_alpha = 1.0
 		self.transform_stack = [(1, 0, 0, 1, 0, 0)]
 
-	def setPageSize(self, size):
-		self.drawing = Drawing(size[0], size[1])
+	def setPageSize(self, size): self.drawing = Drawing(size[0], size[1])
 
 	def saveState(self):
 		self.transform_stack.append(self.transform_stack[-1])
@@ -47,9 +47,6 @@ class CanvasAdapter:
 	def beginPath(self):
 		return PathAdapter()
 
-	def drawPath(self, path):
-		self.drawing.add(path)
-
 	def drawPath(self, path, stroke=1, fill=0, fillMode=None):
 		path = deepcopy(path)
 		path.strokeWidth = stroke
@@ -64,11 +61,15 @@ class CanvasAdapter:
 		for i in range(0, len(path.points), 2):
 			path.points[i], path.points[i + 1] = transformPoint(self.transform_stack[-1], (path.points[i], path.points[i + 1]))
 
-		sys.stderr.write(repr(path.points))
 		self.drawing.add(path)
 
 	def showPage(self):
-		picture = renderPM.drawToString(self.drawing, fmt="PNG")
+		if self.file_format == 'SVG':
+			picture = renderSVG.drawToString(self.drawing).encode('utf-8')
+		elif self.file_format == 'EPS':
+			picture = renderPS.drawToString(self.drawing)
+		else:
+			picture = renderPM.drawToString(self.drawing, fmt=self.file_format)
 		self.output.write(picture)
 
 	def save(self):
@@ -236,6 +237,7 @@ draw call.
 	parser.add_argument('--gradient', type=parse_gradient, help=gradient_help)
 	parser.add_argument('--hole', type=str, help=area_help)
 	parser.add_argument('--draw', type=str, help=draw_help)
+	parser.add_argument('--format', type=str, choices=['PDF', 'EPS', 'SVG', 'PNG', 'GIF', 'JPG', 'TIFF', 'BMP', 'PPM'], default='PDF', help="Output image format")
 	parser.set_defaults(compress=True)
 	parser.set_defaults(enhanced_path=None)
 
@@ -253,6 +255,9 @@ draw call.
 
 	base_args = vars(parser.parse_args(arg_lists[0]))
 	text = base_args.pop('text')
+	image_format = base_args.pop('format')
+	if base_args.get('gradient') and image_format != 'PDF':
+		raise ValueError("Gradient is supported only for PDF format")
 	if text is None:
 		text = sys.stdin.read()
 	if base_args['base64']:
@@ -263,12 +268,13 @@ draw call.
 	else:
 		output = open(base_args['outfile'], 'wb')
 
-	c = canvas.Canvas(
-		output,
-		pageCompression=1 if base_args['compress'] else 0
-	)
-
-	c = CanvasAdapter(output)
+	if image_format == 'PDF':
+		c = canvas.Canvas(
+			output,
+			pageCompression=1 if base_args['compress'] else 0
+		)
+	else:
+		c = CanvasAdapter(output, image_format)
 
 	try:
 		if len(arg_lists) == 1:
