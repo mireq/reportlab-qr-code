@@ -1,3 +1,10 @@
+## 1.8.0 (2024-08-11)
+
+### Feat
+
+- Implemented bitmap and vector format outputs
+- Added png support
+
 ## 1.7.0 (2023-05-28)
 
 ### Feat
