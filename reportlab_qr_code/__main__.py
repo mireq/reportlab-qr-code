@@ -4,9 +4,75 @@ import sys
 from base64 import b64decode
 from copy import deepcopy
 
+from reportlab.graphics import renderPM
+from reportlab.graphics.shapes import Drawing, Path
+from reportlab.graphics.transform import transformPoint
+from reportlab.lib.colors import toColor
 from reportlab.pdfgen import canvas
 
 from . import DEFAULT_PARAMS, clean_params, build_qrcode
+
+
+class PathAdapter(Path):
+	def close(self):
+		return self.closePath()
+
+
+class CanvasAdapter:
+	def __init__(self, output):
+		self.output = output
+		self.drawing = Drawing()
+		self.fill_color = (0, 0, 0)
+		self.fill_alpha = 1.0
+		self.transform_stack = [(1, 0, 0, 1, 0, 0)]
+
+	def setPageSize(self, size):
+		self.drawing = Drawing(size[0], size[1])
+
+	def saveState(self):
+		self.transform_stack.append(self.transform_stack[-1])
+
+	def restoreState(self):
+		self.transform_stack.pop()
+
+	def transform(self, a, b, c, d, e, f):
+		self.transform_stack[-1] = (a, b, c, d, e, f)
+
+	def setFillColor(self, color):
+		self.fill_color = color
+
+	def setFillAlpha(self, alpha):
+		self.fill_alpha = alpha
+
+	def beginPath(self):
+		return PathAdapter()
+
+	def drawPath(self, path):
+		self.drawing.add(path)
+
+	def drawPath(self, path, stroke=1, fill=0, fillMode=None):
+		path = deepcopy(path)
+		path.strokeWidth = stroke
+		path.fillMode = fillMode
+		if fill:
+			path.fillColor = toColor(self.fill_color)
+			path.fillOpacity = self.fill_alpha
+		else:
+			path.fillColor = None
+
+		# for x, y poairs
+		for i in range(0, len(path.points), 2):
+			path.points[i], path.points[i + 1] = transformPoint(self.transform_stack[-1], (path.points[i], path.points[i + 1]))
+
+		sys.stderr.write(repr(path.points))
+		self.drawing.add(path)
+
+	def showPage(self):
+		picture = renderPM.drawToString(self.drawing, fmt="PNG")
+		self.output.write(picture)
+
+	def save(self):
+		pass
 
 
 def generate(text, c, **args):
@@ -201,6 +267,8 @@ draw call.
 		output,
 		pageCompression=1 if base_args['compress'] else 0
 	)
+
+	c = CanvasAdapter(output)
 
 	try:
 		if len(arg_lists) == 1:
