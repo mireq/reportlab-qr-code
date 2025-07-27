@@ -201,7 +201,7 @@ in range [0, 1], position (0, 0) is top left corner, (1, 1) is bottom right
 corner.
 Colors is list "[position] color" e.g. "0.0 #ffffff 1.0 #000000". Position is
 optional. Without position argument, distances are calculated automatically.
-Example: --gradient "linear 0.0 0.0 0.1 1.0 0.5 \#1050c0 0.3 \#1050c0 0.7 \#e0e000"
+Example: --gradient "linear 0.0 0.0 0.1 1.0 0.5 #1050c0 0.3 #1050c0 0.7 #e0e000"
 	"""
 	area_help = """
 Coordinates in form x:y:w:h. Allowed are absolute length units, relative units (%%)
