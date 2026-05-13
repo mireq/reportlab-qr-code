@@ -4,7 +4,7 @@ description = "QR code plugin for reportlab and RML language"
 readme = "README.rst"
 requires-python = ">=3.7"
 keywords = ["qr code", "rml", "reportlab"]
-license = {text = "MIT"}
+license = "MIT"
 dynamic = ["version"]
 authors = [
 	{ name = "Miroslav Bendík", email = "miroslav.bendik@gmail.com" }
