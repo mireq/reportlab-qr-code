@@ -1,3 +1,13 @@
+## 1.9.0 (2026-05-13)
+
+### Feat
+
+- Updated example code
+
+### Fix
+
+- Added new codecov action
+
 ## 1.8.0 (2024-08-11)
 
 ### Feat
